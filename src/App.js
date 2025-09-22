@@ -38,7 +38,13 @@ const App = () => {
 
     const loadTasks = async () => {
         try {
-            const tasksData = await taskService.getAllTasks(filters, sort);
+            // For employees, add their user ID to filters to show only their tasks
+            // For managers, show all tasks
+            const taskFilters = user.role === "employee" 
+                ? { ...filters, assigneeId: user.id }
+                : filters;
+            
+            const tasksData = await taskService.getAllTasks(taskFilters, sort);
             setTasks(tasksData);
             setFilteredTasks(tasksData);
         } catch (error) {
