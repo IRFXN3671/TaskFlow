@@ -143,6 +143,12 @@ const App = () => {
         { name: "Low", value: stats.tasksByPriority?.low || 0, color: "#10b981" }
     ];
 
+    const statusChartData = [
+        { name: "Pending", value: stats.pendingTasks || 0, color: "#6b7280" },
+        { name: "In Progress", value: stats.inProgressTasks || 0, color: "#3b82f6" },
+        { name: "Completed", value: stats.completedTasks || 0, color: "#10b981" }
+    ];
+
     const assigneeChartData = Object.entries(stats.tasksByAssignee || {}).map(([name, value]) => ({
         name,
         value,
@@ -175,11 +181,16 @@ const App = () => {
                     type: "pie",
                     title: "Tasks by Priority"
                 }),
-                isManager && React.createElement(Chart, {
+                isManager ? React.createElement(Chart, {
                     key: "assignee-chart",
                     data: assigneeChartData,
-                    type: "bar",
+                    type: "pie",
                     title: "Tasks by Assignee"
+                }) : React.createElement(Chart, {
+                    key: "status-chart",
+                    data: statusChartData,
+                    type: "pie",
+                    title: "Task Status Distribution"
                 })
             ]),
             React.createElement("div", {
