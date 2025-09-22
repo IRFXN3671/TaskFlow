@@ -202,6 +202,41 @@ const EmployeeCard = ({
             ])
         ]),
 
+        // Skills section
+        employee.skills && employee.skills.length > 0 && React.createElement("div", {
+            key: "skills",
+            className: "mt-4"
+        }, [
+            React.createElement("div", {
+                key: "skills-label",
+                className: `text-xs font-medium ${employee.isActive ? 'text-gray-500' : 'text-gray-400'} mb-2`
+            }, "Skills"),
+            React.createElement("div", {
+                key: "skills-container",
+                className: "flex flex-wrap gap-1"
+            }, employee.skills.slice(0, 6).map((skill, index) => 
+                React.createElement("span", {
+                    key: skill,
+                    className: `px-2 py-1 text-xs rounded-full ${
+                        employee.isActive 
+                            ? 'bg-blue-100 text-blue-700' 
+                            : 'bg-gray-200 text-gray-500'
+                    }`
+                }, skill)
+            ).concat(
+                employee.skills.length > 6 ? [
+                    React.createElement("span", {
+                        key: "more-skills",
+                        className: `px-2 py-1 text-xs rounded-full ${
+                            employee.isActive 
+                                ? 'bg-gray-100 text-gray-600' 
+                                : 'bg-gray-200 text-gray-500'
+                        }`
+                    }, `+${employee.skills.length - 6} more`)
+                ] : []
+            ))
+        ]),
+
         // Footer with login info and username
         React.createElement("div", {
             key: "footer",

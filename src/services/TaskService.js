@@ -1,4 +1,5 @@
-import { mockUsers, mockTasks } from '../data/mockData.js';
+import { mockTasks } from '../data/mockData.js';
+import { employeeService } from './EmployeeService.js';
 
 const STORAGE_KEY = "task_tracker_tasks";
 
@@ -73,49 +74,76 @@ class TaskService {
     }
 
     createTask(taskData) {
-        return new Promise(resolve => {
-            setTimeout(() => {
-                const tasks = this.getTasks();
-                const assignee = mockUsers.find(user => user.id === taskData.assigneeId);
-                const newTask = {
-                    ...taskData,
-                    id: Date.now().toString(),
-                    assigneeName: assignee?.name || "Unknown",
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString()
-                };
-                tasks.push(newTask);
-                this.saveTasks(tasks);
-                resolve(newTask);
+        return new Promise(async (resolve) => {
+            setTimeout(async () => {
+                try {
+                    const tasks = this.getTasks();
+                    const employees = await employeeService.getAllEmployees();
+                    const assignee = employees.find(emp => emp.id === taskData.assigneeId);
+                    const newTask = {
+                        ...taskData,
+                        id: Date.now().toString(),
+                        assigneeName: assignee?.name || "Unknown",
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    };
+                    tasks.push(newTask);
+                    this.saveTasks(tasks);
+                    resolve(newTask);
+                } catch (error) {
+                    console.error('Error creating task:', error);
+                    // Fallback to basic task creation
+                    const tasks = this.getTasks();
+                    const newTask = {
+                        ...taskData,
+                        id: Date.now().toString(),
+                        assigneeName: "Unknown",
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    };
+                    tasks.push(newTask);
+                    this.saveTasks(tasks);
+                    resolve(newTask);
+                }
             }, 500);
         });
     }
 
     updateTask(taskId, taskData) {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                const tasks = this.getTasks();
-                const taskIndex = tasks.findIndex(task => task.id === taskId);
-                
-                if (taskIndex === -1) {
-                    reject(new Error("Task not found"));
-                    return;
+        return new Promise(async (resolve, reject) => {
+            setTimeout(async () => {
+                try {
+                    const tasks = this.getTasks();
+                    const taskIndex = tasks.findIndex(task => task.id === taskId);
+                    
+                    if (taskIndex === -1) {
+                        reject(new Error("Task not found"));
+                        return;
+                    }
+                    
+                    const updatedTask = {
+                        ...tasks[taskIndex],
+                        ...taskData,
+                        updatedAt: new Date().toISOString()
+                    };
+                    
+                    if (taskData.assigneeId) {
+                        try {
+                            const employees = await employeeService.getAllEmployees();
+                            const assignee = employees.find(emp => emp.id === taskData.assigneeId);
+                            updatedTask.assigneeName = assignee?.name || "Unknown";
+                        } catch (error) {
+                            console.error('Error fetching employees for task update:', error);
+                            updatedTask.assigneeName = "Unknown";
+                        }
+                    }
+                    
+                    tasks[taskIndex] = updatedTask;
+                    this.saveTasks(tasks);
+                    resolve(updatedTask);
+                } catch (error) {
+                    reject(error);
                 }
-                
-                const updatedTask = {
-                    ...tasks[taskIndex],
-                    ...taskData,
-                    updatedAt: new Date().toISOString()
-                };
-                
-                if (taskData.assigneeId) {
-                    const assignee = mockUsers.find(user => user.id === taskData.assigneeId);
-                    updatedTask.assigneeName = assignee?.name || "Unknown";
-                }
-                
-                tasks[taskIndex] = updatedTask;
-                this.saveTasks(tasks);
-                resolve(updatedTask);
             }, 400);
         });
     }

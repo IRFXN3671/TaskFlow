@@ -27,10 +27,11 @@ const mockEmployees = [{
     position: "Frontend Developer",
     department: "Development",
     username: "employee1",
-    defaultPassword: "emp123",
+    defaultPassword: "password123",
     isActive: true,
     joinedDate: "2024-01-15",
-    lastLogin: "2025-01-20T09:30:00Z"
+    lastLogin: "2025-01-20T09:30:00Z",
+    skills: ["React", "JavaScript", "CSS", "HTML", "TypeScript"]
 }, {
     id: "3",
     name: "Wasim",
@@ -38,10 +39,11 @@ const mockEmployees = [{
     position: "Backend Developer",
     department: "Development",
     username: "employee2",
-    defaultPassword: "emp456",
+    defaultPassword: "password123",
     isActive: true,
     joinedDate: "2024-02-01",
-    lastLogin: "2025-01-19T14:22:00Z"
+    lastLogin: "2025-01-19T14:22:00Z",
+    skills: ["Node.js", "Python", "MongoDB", "PostgreSQL", "API Development"]
 }, {
     id: "4",
     name: "Sanin",
@@ -49,11 +51,31 @@ const mockEmployees = [{
     position: "QA Engineer",
     department: "Quality Assurance",
     username: "employee3",
-    defaultPassword: "emp789",
+    defaultPassword: "password123",
     isActive: false,
     joinedDate: "2024-03-10",
-    lastLogin: "2025-01-10T11:15:00Z"
+    lastLogin: "2025-01-10T11:15:00Z",
+    skills: ["Testing", "Automation", "Selenium", "Quality Assurance", "Bug Tracking"]
 }];
+
+// Available skills for selection/autocomplete
+const availableSkills = [
+    // Programming Languages
+    "JavaScript", "TypeScript", "Python", "Java", "C#", "PHP", "Go", "Rust", "Swift", "Kotlin",
+    // Frontend Technologies
+    "React", "Vue.js", "Angular", "HTML", "CSS", "SCSS", "Tailwind CSS", "Bootstrap",
+    // Backend Technologies
+    "Node.js", "Express.js", "Django", "Flask", "Spring Boot", "ASP.NET", "Laravel",
+    // Databases
+    "MongoDB", "PostgreSQL", "MySQL", "Redis", "SQLite", "Oracle", "SQL Server",
+    // DevOps & Tools
+    "Docker", "Kubernetes", "AWS", "Azure", "GCP", "Jenkins", "Git", "CI/CD",
+    // Testing
+    "Testing", "Unit Testing", "Integration Testing", "Automation", "Selenium", "Jest", "Cypress",
+    // Other Skills
+    "API Development", "REST APIs", "GraphQL", "Microservices", "Quality Assurance", "Bug Tracking",
+    "Project Management", "Agile", "Scrum", "UI/UX Design", "Mobile Development", "Machine Learning"
+];
 
 const mockTasks = [{
     id: "1",
@@ -125,9 +147,9 @@ const mockTasks = [{
 
 const mockCredentials = {
     manager1: "password123",
-    employee1: "emp123",
-    employee2: "emp456",
-    employee3: "emp789"
+    employee1: "password123",
+    employee2: "password123",
+    employee3: "password123"
 };
 
-export { mockUsers, mockTasks, mockCredentials, mockEmployees };
+export { mockUsers, mockTasks, mockCredentials, mockEmployees, availableSkills };

@@ -1,4 +1,4 @@
-import { mockEmployees, mockUsers, mockCredentials } from '../data/mockData.js';
+import { mockEmployees, mockUsers, mockCredentials, availableSkills } from '../data/mockData.js';
 
 class EmployeeService {
     constructor() {
@@ -14,6 +14,15 @@ class EmployeeService {
             setTimeout(() => {
                 resolve([...this.employees]);
             }, 300);
+        });
+    }
+
+    // Get only active employees
+    getActiveEmployees() {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(this.employees.filter(emp => emp.isActive));
+            }, 200);
         });
     }
 
@@ -39,9 +48,9 @@ class EmployeeService {
                     // Generate unique ID
                     const newId = (Math.max(...this.employees.map(emp => parseInt(emp.id))) + 1).toString();
                     
-                    // Generate username and default password
+                    // Generate username and use default password
                     const username = this.generateUsername(employeeData.name);
-                    const defaultPassword = this.generateDefaultPassword();
+                    const defaultPassword = "password123";
                     
                     const newEmployee = {
                         id: newId,
@@ -53,7 +62,8 @@ class EmployeeService {
                         defaultPassword: defaultPassword,
                         isActive: true,
                         joinedDate: new Date().toISOString().split('T')[0],
-                        lastLogin: null
+                        lastLogin: null,
+                        skills: employeeData.skills || []
                     };
 
                     // Add to employees array
@@ -169,7 +179,7 @@ class EmployeeService {
                     return;
                 }
 
-                const newPassword = this.generateDefaultPassword();
+                const newPassword = "password123";
                 const employee = this.employees[employeeIndex];
                 
                 employee.defaultPassword = newPassword;
@@ -197,13 +207,48 @@ class EmployeeService {
                     return acc;
                 }, {});
 
+                // Calculate skills statistics
+                const skillsStats = {};
+                this.employees.forEach(emp => {
+                    if (emp.skills) {
+                        emp.skills.forEach(skill => {
+                            skillsStats[skill] = (skillsStats[skill] || 0) + 1;
+                        });
+                    }
+                });
+
                 resolve({
                     totalEmployees,
                     activeEmployees,
                     inactiveEmployees,
-                    departmentStats
+                    departmentStats,
+                    skillsStats
                 });
             }, 200);
+        });
+    }
+
+    // Get available skills for autocomplete
+    getAvailableSkills() {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve([...availableSkills]);
+            }, 100);
+        });
+    }
+
+    // Get all skills currently used by employees
+    getUsedSkills() {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const usedSkills = new Set();
+                this.employees.forEach(emp => {
+                    if (emp.skills) {
+                        emp.skills.forEach(skill => usedSkills.add(skill));
+                    }
+                });
+                resolve(Array.from(usedSkills).sort());
+            }, 100);
         });
     }
 
@@ -224,9 +269,7 @@ class EmployeeService {
     }
 
     generateDefaultPassword() {
-        const prefix = 'emp';
-        const suffix = Math.floor(Math.random() * 9000) + 1000; // 4-digit number
-        return `${prefix}${suffix}`;
+        return "password123";
     }
 
     // Subscription methods

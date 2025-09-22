@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, Plus, Search, Filter } from '../icons/index.js';
+import { Users, Plus, Search, Filter, X } from '../icons/index.js';
 import EmployeeCard from './EmployeeCard.js';
 import EmployeeModal from './EmployeeModal.js';
 import { employeeService } from '../../services/EmployeeService.js';
@@ -14,6 +14,7 @@ const EmployeeList = () => {
     const [searchTerm, setSearchTerm] = React.useState('');
     const [statusFilter, setStatusFilter] = React.useState('all'); // 'all', 'active', 'inactive'
     const [departmentFilter, setDepartmentFilter] = React.useState('all');
+    const [skillsFilter, setSkillsFilter] = React.useState([]);
     const [stats, setStats] = React.useState({});
 
     // Load employees on component mount
@@ -33,7 +34,7 @@ const EmployeeList = () => {
     // Filter employees when search or filter changes
     React.useEffect(() => {
         filterEmployees();
-    }, [employees, searchTerm, statusFilter, departmentFilter]);
+    }, [employees, searchTerm, statusFilter, departmentFilter, skillsFilter]);
 
     const loadEmployees = async () => {
         try {
@@ -67,7 +68,10 @@ const EmployeeList = () => {
                 emp.name.toLowerCase().includes(term) ||
                 emp.email.toLowerCase().includes(term) ||
                 emp.position.toLowerCase().includes(term) ||
-                emp.department.toLowerCase().includes(term)
+                emp.department.toLowerCase().includes(term) ||
+                (emp.skills && emp.skills.some(skill => 
+                    skill.toLowerCase().includes(term)
+                ))
             );
         }
 
@@ -81,6 +85,15 @@ const EmployeeList = () => {
         // Department filter
         if (departmentFilter !== 'all') {
             filtered = filtered.filter(emp => emp.department === departmentFilter);
+        }
+
+        // Skills filter
+        if (skillsFilter.length > 0) {
+            filtered = filtered.filter(emp => 
+                emp.skills && skillsFilter.every(skill => 
+                    emp.skills.includes(skill)
+                )
+            );
         }
 
         setFilteredEmployees(filtered);
@@ -157,6 +170,33 @@ const EmployeeList = () => {
     const getDepartments = () => {
         const departments = [...new Set(employees.map(emp => emp.department))];
         return departments.sort();
+    };
+
+    const getAllSkills = () => {
+        const allSkills = new Set();
+        employees.forEach(emp => {
+            if (emp.skills) {
+                emp.skills.forEach(skill => allSkills.add(skill));
+            }
+        });
+        return Array.from(allSkills).sort();
+    };
+
+    const addSkillFilter = (skill) => {
+        if (!skillsFilter.includes(skill)) {
+            setSkillsFilter(prev => [...prev, skill]);
+        }
+    };
+
+    const removeSkillFilter = (skill) => {
+        setSkillsFilter(prev => prev.filter(s => s !== skill));
+    };
+
+    const clearAllFilters = () => {
+        setSearchTerm('');
+        setStatusFilter('all');
+        setDepartmentFilter('all');
+        setSkillsFilter([]);
     };
 
     return React.createElement("div", { className: "space-y-6" }, [
@@ -284,7 +324,7 @@ const EmployeeList = () => {
                         type: "text",
                         value: searchTerm,
                         onChange: (e) => setSearchTerm(e.target.value),
-                        placeholder: "Search employees...",
+                        placeholder: "Search employees, skills...",
                         className: "w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     }),
                     React.createElement(Search, {
@@ -316,7 +356,54 @@ const EmployeeList = () => {
                     ...getDepartments().map(dept => 
                         React.createElement("option", { key: dept, value: dept }, dept)
                     )
+                ]),
+
+                // Skills filter dropdown
+                React.createElement("select", {
+                    key: "skills-filter",
+                    value: "",
+                    onChange: (e) => {
+                        if (e.target.value) {
+                            addSkillFilter(e.target.value);
+                            e.target.value = "";
+                        }
+                    },
+                    className: "px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                }, [
+                    React.createElement("option", { key: "filter-by-skill", value: "" }, "Filter by Skill"),
+                    ...getAllSkills().filter(skill => !skillsFilter.includes(skill)).map(skill => 
+                        React.createElement("option", { key: skill, value: skill }, skill)
+                    )
                 ])
+            ]),
+
+            // Active skill filters display
+            skillsFilter.length > 0 && React.createElement("div", {
+                key: "active-skill-filters",
+                className: "mt-3 flex flex-wrap items-center gap-2"
+            }, [
+                React.createElement("span", {
+                    key: "filter-label",
+                    className: "text-sm text-gray-600 font-medium"
+                }, "Skills:"),
+                ...skillsFilter.map(skill =>
+                    React.createElement("span", {
+                        key: skill,
+                        className: "inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full"
+                    }, [
+                        React.createElement("span", { key: "skill-text" }, skill),
+                        React.createElement("button", {
+                            key: "remove-skill",
+                            onClick: () => removeSkillFilter(skill),
+                            className: "text-blue-600 hover:text-blue-800 ml-1"
+                        }, React.createElement(X, { className: "h-3 w-3" }))
+                    ])
+                ),
+                React.createElement("button", {
+                    key: "clear-all",
+                    onClick: clearAllFilters,
+                    className: "text-xs text-gray-500 hover:text-gray-700 underline"
+                }, "Clear all filters")
             ])
         ]),
 
@@ -340,14 +427,14 @@ const EmployeeList = () => {
                     React.createElement("h3", {
                         key: "no-employees-title",
                         className: "text-lg font-medium text-gray-900 mb-2"
-                    }, searchTerm || statusFilter !== 'all' || departmentFilter !== 'all' ? "No employees found" : "No employees yet"),
+                    }, searchTerm || statusFilter !== 'all' || departmentFilter !== 'all' || skillsFilter.length > 0 ? "No employees found" : "No employees yet"),
                     React.createElement("p", {
                         key: "no-employees-desc",
                         className: "text-gray-600"
-                    }, searchTerm || statusFilter !== 'all' || departmentFilter !== 'all' 
+                    }, searchTerm || statusFilter !== 'all' || departmentFilter !== 'all' || skillsFilter.length > 0
                         ? "Try adjusting your search or filters" 
                         : "Add your first employee to get started"),
-                    !searchTerm && statusFilter === 'all' && departmentFilter === 'all' && React.createElement("button", {
+                    !searchTerm && statusFilter === 'all' && departmentFilter === 'all' && skillsFilter.length === 0 && React.createElement("button", {
                         key: "add-first-btn",
                         onClick: handleAddEmployee,
                         className: "mt-4 flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors mx-auto"

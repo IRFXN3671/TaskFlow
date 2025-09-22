@@ -1,6 +1,6 @@
 import React from 'react';
-import { mockUsers } from '../../data/mockData.js';
 import { X, Save, Plus } from '../icons/index.js';
+import { employeeService } from '../../services/EmployeeService.js';
 
 const TaskModal = ({task, isOpen, onClose, onSubmit, isManager}) => {
     const [formData, setFormData] = React.useState({
@@ -12,6 +12,8 @@ const TaskModal = ({task, isOpen, onClose, onSubmit, isManager}) => {
         assigneeId: ""
     });
     const [loading, setLoading] = React.useState(false);
+    const [activeEmployees, setActiveEmployees] = React.useState([]);
+    const [loadingEmployees, setLoadingEmployees] = React.useState(false);
     
     React.useEffect(() => {
         setFormData(task ? {
@@ -30,6 +32,26 @@ const TaskModal = ({task, isOpen, onClose, onSubmit, isManager}) => {
             assigneeId: ""
         });
     }, [task]);
+
+    // Load active employees when modal opens
+    React.useEffect(() => {
+        if (isOpen && isManager) {
+            loadActiveEmployees();
+        }
+    }, [isOpen, isManager]);
+
+    const loadActiveEmployees = async () => {
+        try {
+            setLoadingEmployees(true);
+            const activeEmps = await employeeService.getActiveEmployees();
+            setActiveEmployees(activeEmps);
+        } catch (error) {
+            console.error('Failed to load employees:', error);
+            setActiveEmployees([]);
+        } finally {
+            setLoadingEmployees(false);
+        }
+    };
     
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -53,8 +75,6 @@ const TaskModal = ({task, isOpen, onClose, onSubmit, isManager}) => {
     };
     
     if (!isOpen) return null;
-    
-    const employees = mockUsers.filter(user => user.role === "employee");
     
     return React.createElement("div", {
         className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50",
@@ -225,17 +245,17 @@ const TaskModal = ({task, isOpen, onClose, onSubmit, isManager}) => {
                         value: formData.assigneeId,
                         onChange: handleInputChange,
                         required: true,
-                        disabled: !isManager,
+                        disabled: !isManager || loadingEmployees,
                         className: "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors disabled:bg-gray-50",
                     }, [
                         React.createElement("option", {
                             key: "placeholder",
                             value: "",
-                        }, "Select an employee"),
-                        ...employees.map(employee => React.createElement("option", {
+                        }, loadingEmployees ? "Loading employees..." : "Select an employee"),
+                        ...activeEmployees.map(employee => React.createElement("option", {
                             key: employee.id,
                             value: employee.id,
-                        }, employee.name))
+                        }, `${employee.name} - ${employee.position}`))
                     ])
                 ])
             ]),

@@ -1,5 +1,6 @@
 import React from 'react';
-import { X, User, Mail, Save } from '../icons/index.js';
+import { X, User, Mail, Save, Plus } from '../icons/index.js';
+import { availableSkills } from '../../data/mockData.js';
 
 const EmployeeModal = ({ 
     isOpen, 
@@ -12,9 +13,13 @@ const EmployeeModal = ({
         name: '',
         email: '',
         position: '',
-        department: ''
+        department: '',
+        skills: []
     });
     const [errors, setErrors] = React.useState({});
+    const [skillInput, setSkillInput] = React.useState('');
+    const [skillSuggestions, setSkillSuggestions] = React.useState([]);
+    const [showSuggestions, setShowSuggestions] = React.useState(false);
 
     // Initialize form data when modal opens or employee changes
     React.useEffect(() => {
@@ -24,17 +29,21 @@ const EmployeeModal = ({
                     name: employee.name || '',
                     email: employee.email || '',
                     position: employee.position || '',
-                    department: employee.department || ''
+                    department: employee.department || '',
+                    skills: employee.skills || []
                 });
             } else {
                 setFormData({
                     name: '',
                     email: '',
                     position: '',
-                    department: ''
+                    department: '',
+                    skills: []
                 });
             }
             setErrors({});
+            setSkillInput('');
+            setShowSuggestions(false);
         }
     }, [isOpen, employee]);
 
@@ -82,6 +91,50 @@ const EmployeeModal = ({
                 ...prev,
                 [field]: ''
             }));
+        }
+    };
+
+    // Skills management functions
+    const handleSkillInputChange = (value) => {
+        setSkillInput(value);
+        
+        if (value.trim()) {
+            const suggestions = availableSkills.filter(skill => 
+                skill.toLowerCase().includes(value.toLowerCase()) &&
+                !formData.skills.includes(skill)
+            ).slice(0, 5);
+            setSkillSuggestions(suggestions);
+            setShowSuggestions(true);
+        } else {
+            setShowSuggestions(false);
+        }
+    };
+
+    const addSkill = (skill) => {
+        const skillToAdd = skill || skillInput.trim();
+        if (skillToAdd && !formData.skills.includes(skillToAdd)) {
+            setFormData(prev => ({
+                ...prev,
+                skills: [...prev.skills, skillToAdd]
+            }));
+            setSkillInput('');
+            setShowSuggestions(false);
+        }
+    };
+
+    const removeSkill = (skillToRemove) => {
+        setFormData(prev => ({
+            ...prev,
+            skills: prev.skills.filter(skill => skill !== skillToRemove)
+        }));
+    };
+
+    const handleSkillKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addSkill();
+        } else if (e.key === 'Escape') {
+            setShowSuggestions(false);
         }
     };
 
@@ -273,6 +326,87 @@ const EmployeeModal = ({
                     key: "department-error",
                     className: "text-sm text-red-600"
                 }, errors.department)
+            ]),
+
+            // Skills field
+            React.createElement("div", {
+                key: "skills-field",
+                className: "space-y-2"
+            }, [
+                React.createElement("label", {
+                    key: "skills-label",
+                    className: "block text-sm font-medium text-gray-700"
+                }, "Skills"),
+                
+                // Selected skills display
+                formData.skills.length > 0 && React.createElement("div", {
+                    key: "selected-skills",
+                    className: "flex flex-wrap gap-2 mb-2"
+                }, formData.skills.map(skill =>
+                    React.createElement("span", {
+                        key: skill,
+                        className: "inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full"
+                    }, [
+                        React.createElement("span", { key: "skill-text" }, skill),
+                        React.createElement("button", {
+                            key: "remove-btn",
+                            type: "button",
+                            onClick: () => removeSkill(skill),
+                            className: "text-blue-600 hover:text-blue-800 ml-1",
+                            disabled: isLoading
+                        }, "×")
+                    ])
+                )),
+                
+                // Skills input with suggestions
+                React.createElement("div", {
+                    key: "skills-input-container",
+                    className: "relative"
+                }, [
+                    React.createElement("div", {
+                        key: "input-wrapper",
+                        className: "flex gap-2"
+                    }, [
+                        React.createElement("input", {
+                            key: "skills-input",
+                            type: "text",
+                            value: skillInput,
+                            onChange: (e) => handleSkillInputChange(e.target.value),
+                            onKeyDown: handleSkillKeyDown,
+                            className: "flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+                            placeholder: "Type a skill and press Enter",
+                            disabled: isLoading
+                        }),
+                        React.createElement("button", {
+                            key: "add-skill-btn",
+                            type: "button",
+                            onClick: () => addSkill(),
+                            className: "px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors",
+                            disabled: isLoading || !skillInput.trim()
+                        }, React.createElement(Plus, {
+                            className: "h-4 w-4"
+                        }))
+                    ]),
+                    
+                    // Suggestions dropdown
+                    showSuggestions && skillSuggestions.length > 0 && React.createElement("div", {
+                        key: "suggestions",
+                        className: "absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-40 overflow-y-auto"
+                    }, skillSuggestions.map(skill =>
+                        React.createElement("button", {
+                            key: skill,
+                            type: "button",
+                            onClick: () => addSkill(skill),
+                            className: "w-full text-left px-3 py-2 hover:bg-gray-50 text-sm",
+                            disabled: isLoading
+                        }, skill)
+                    ))
+                ]),
+                
+                React.createElement("p", {
+                    key: "skills-help",
+                    className: "text-xs text-gray-500"
+                }, "Add relevant skills for this employee. Type and press Enter or select from suggestions.")
             ])
         ]),
 
