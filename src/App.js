@@ -3,6 +3,7 @@ import Login from './components/auth/Login.js';
 import Header from './components/shared/Header.js';
 import StatsCards from './components/dashboard/StatsCards.js';
 import Chart from './components/dashboard/Chart.js';
+import ManagerDashboard from './components/dashboard/ManagerDashboard.js';
 import TaskFilters from './components/tasks/TaskFilters.js';
 import TaskCard from './components/tasks/TaskCard.js';
 import TaskModal from './components/tasks/TaskModal.js';
@@ -166,7 +167,24 @@ const App = () => {
         React.createElement("main", {
             key: "main",
             className: "max-w-7xl mx-auto px-6 py-8 space-y-8"
-        }, [
+        }, 
+        isManager ? 
+            React.createElement(ManagerDashboard, {
+                key: "manager-dashboard",
+                user: user,
+                tasks: tasks,
+                filteredTasks: filteredTasks,
+                stats: stats,
+                filters: filters,
+                sort: sort,
+                onFiltersChange: setFilters,
+                onSortChange: setSort,
+                onNewTask: handleNewTask,
+                onTaskStatusChange: handleTaskStatusChange,
+                onTaskEdit: handleTaskEdit,
+                onTaskDelete: handleTaskDelete
+            })
+        : [
             React.createElement(StatsCards, {
                 key: "stats",
                 stats: stats
@@ -181,12 +199,7 @@ const App = () => {
                     type: "pie",
                     title: "Tasks by Priority"
                 }),
-                isManager ? React.createElement(Chart, {
-                    key: "assignee-chart",
-                    data: assigneeChartData,
-                    type: "pie",
-                    title: "Tasks by Assignee"
-                }) : React.createElement(Chart, {
+                React.createElement(Chart, {
                     key: "status-chart",
                     data: statusChartData,
                     type: "pie",
@@ -204,18 +217,7 @@ const App = () => {
                     React.createElement("h2", {
                         key: "tasks-title",
                         className: "text-2xl font-bold text-gray-900"
-                    }, "Tasks"),
-                    isManager && React.createElement("button", {
-                        key: "new-task-btn",
-                        onClick: handleNewTask,
-                        className: "flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-teal-600 text-white rounded-lg hover:from-blue-700 hover:to-teal-700 transition-colors"
-                    }, [
-                        React.createElement(Plus, {
-                            key: "plus-icon",
-                            className: "h-4 w-4"
-                        }),
-                        "New Task"
-                    ])
+                    }, "My Tasks")
                 ]),
                 React.createElement(TaskFilters, {
                     key: "filters",

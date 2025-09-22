@@ -18,6 +18,7 @@ const Z = (name, paths) => (props) =>
 
 // Icons
 export const AlertCircle = Z("AlertCircle", [["circle", { cx: "12", cy: "12", r: "10" }], ["line", { x1: "12", y1: "8", x2: "12", y2: "12" }], ["line", { x1: "12", y1: "16", x2: "12.01", y2: "16" }]]);
+export const BarChart3 = Z("BarChart3", [["path", { d: "M3 3v18h18" }], ["rect", { width: "4", height: "7", x: "7", y: "10" }], ["rect", { width: "4", height: "12", x: "15", y: "5" }]]);
 export const Bell = Z("Bell", [["path", { d: "M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" }], ["path", { d: "m13.73 21a2 2 0 0 1-3.46 0" }]]);
 export const Calendar = Z("Calendar", [["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", ry: "2" }], ["line", { x1: "16", y1: "2", x2: "16", y2: "6" }], ["line", { x1: "8", y1: "2", x2: "8", y2: "6" }], ["line", { x1: "3", y1: "10", x2: "21", y2: "10" }]]);
 export const CheckCircle = Z("CheckCircle", [["path", { d: "M22 11.08V12a10 10 0 1 1-5.93-9.14" }], ["polyline", { points: "22,4 12,14.01 9,11.01" }]]);
@@ -34,4 +35,5 @@ export const Save = Z("Save", [["path", { d: "M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1
 export const Search = Z("Search", [["circle", { cx: "11", cy: "11", r: "8" }], ["path", { d: "m21 21-4.35-4.35" }]]);
 export const TrendingUp = Z("TrendingUp", [["polyline", { points: "22,7 13.5,15.5 8.5,10.5 2,17" }], ["polyline", { points: "16,7 22,7 22,13" }]]);
 export const User = Z("User", [["path", { d: "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" }], ["circle", { cx: "12", cy: "7", r: "4" }]]);
+export const Users = Z("Users", [["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" }], ["circle", { cx: "9", cy: "7", r: "4" }], ["path", { d: "m22 21-2-2" }], ["path", { d: "M16 3.13a4 4 0 0 1 0 7.75" }]]);
 export const X = Z("X", [["line", { x1: "18", y1: "6", x2: "6", y2: "18" }], ["line", { x1: "6", y1: "6", x2: "18", y2: "18" }]]);
