@@ -1,4 +1,5 @@
 import { mockUsers, mockCredentials } from '../data/mockData.js';
+import { employeeService } from './EmployeeService.js';
 
 const STORAGE_TOKEN_KEY = "task_tracker_token";
 const STORAGE_USER_KEY = "task_tracker_user";
@@ -10,9 +11,23 @@ class AuthService {
     login(username, password) {
         return new Promise((resolve, reject) => {
             setTimeout(() => {
-                if (mockCredentials[username] === password) {
-                    const user = mockUsers.find(u => u.username === username);
+                // Get current state from employee service (includes updated credentials)
+                const currentState = employeeService.getCurrentState();
+                const allCredentials = { ...mockCredentials, ...currentState.credentials };
+                const allUsers = [...mockUsers, ...currentState.users.filter(user => !mockUsers.find(u => u.id === user.id))];
+                
+                if (allCredentials[username] === password) {
+                    const user = allUsers.find(u => u.username === username);
                     if (user) {
+                        // Check if user is active (for employees)
+                        if (user.role === 'employee') {
+                            const employee = currentState.employees.find(emp => emp.username === username);
+                            if (employee && !employee.isActive) {
+                                reject(new Error("Account is inactive. Please contact your administrator."));
+                                return;
+                            }
+                        }
+                        
                         const token = this.generateMockToken(user);
                         localStorage.setItem(STORAGE_TOKEN_KEY, token);
                         localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(user));
@@ -20,15 +35,15 @@ class AuthService {
                         resolve({
                             user: user,
                             token: token
-                        })
+                        });
                     } else {
-                        reject(new Error("User not found"))
+                        reject(new Error("User not found"));
                     }
                 } else {
-                    reject(new Error("Invalid credentials"))
+                    reject(new Error("Invalid credentials"));
                 }
-            }, 1000)
-        })
+            }, 1000);
+        });
     }
     logout() {
         localStorage.removeItem(STORAGE_TOKEN_KEY);

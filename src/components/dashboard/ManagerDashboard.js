@@ -4,6 +4,7 @@ import StatsCards from './StatsCards.js';
 import Chart from './Chart.js';
 import TaskFilters from '../tasks/TaskFilters.js';
 import TaskCard from '../tasks/TaskCard.js';
+import EmployeeList from '../employees/EmployeeList.js';
 
 const ManagerDashboard = ({
     user,
@@ -254,12 +255,22 @@ const ManagerDashboard = ({
                 icon: User,
                 isActive: activeTab === "tasks",
                 onClick: setActiveTab
+            }),
+            React.createElement(TabButton, {
+                key: "employees-tab",
+                id: "employees",
+                label: "Employee Management",
+                icon: Users,
+                isActive: activeTab === "employees",
+                onClick: setActiveTab
             })
         ]),
         React.createElement("div", {
             key: "content",
             className: "min-h-screen"
-        }, activeTab === "analytics" ? React.createElement(AnalyticsView) : React.createElement(TaskManagementView))
+        }, activeTab === "analytics" ? React.createElement(AnalyticsView) : 
+           activeTab === "tasks" ? React.createElement(TaskManagementView) :
+           React.createElement(EmployeeList))
     ]);
 };
 

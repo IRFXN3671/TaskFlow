@@ -20,6 +20,41 @@ const mockUsers = [{
     name: "Sanin"
 }];
 
+const mockEmployees = [{
+    id: "2",
+    name: "Nidal",
+    email: "nidal@taskflow.com",
+    position: "Frontend Developer",
+    department: "Development",
+    username: "employee1",
+    defaultPassword: "emp123",
+    isActive: true,
+    joinedDate: "2024-01-15",
+    lastLogin: "2025-01-20T09:30:00Z"
+}, {
+    id: "3",
+    name: "Wasim",
+    email: "wasim@taskflow.com",
+    position: "Backend Developer",
+    department: "Development",
+    username: "employee2",
+    defaultPassword: "emp456",
+    isActive: true,
+    joinedDate: "2024-02-01",
+    lastLogin: "2025-01-19T14:22:00Z"
+}, {
+    id: "4",
+    name: "Sanin",
+    email: "sanin@taskflow.com",
+    position: "QA Engineer",
+    department: "Quality Assurance",
+    username: "employee3",
+    defaultPassword: "emp789",
+    isActive: false,
+    joinedDate: "2024-03-10",
+    lastLogin: "2025-01-10T11:15:00Z"
+}];
+
 const mockTasks = [{
     id: "1",
     title: "Design Homepage Layout",
@@ -90,9 +125,9 @@ const mockTasks = [{
 
 const mockCredentials = {
     manager1: "password123",
-    employee1: "password123",
-    employee2: "password123",
-    employee3: "password123"
+    employee1: "emp123",
+    employee2: "emp456",
+    employee3: "emp789"
 };
 
-export { mockUsers, mockTasks, mockCredentials };
+export { mockUsers, mockTasks, mockCredentials, mockEmployees };
