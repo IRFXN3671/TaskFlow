@@ -1,11 +1,11 @@
 import React from 'react';
-import { ClipboardList, CheckCircle, Clock, AlertCircle } from '../icons/index.js';
+import { TrendingUp, CheckCircle, Clock, AlertCircle } from '../icons/index.js';
 
 const StatsCards = ({stats}) => {
     const cards = [{
         title: "Total Tasks",
         value: stats.totalTasks,
-        icon: ClipboardList,
+        icon: TrendingUp,
         color: "bg-blue-500",
         bgColor: "bg-blue-50",
         textColor: "text-blue-700"

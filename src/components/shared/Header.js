@@ -1,5 +1,5 @@
 import React from 'react';
-import { ClipboardList, Bell, LogOut } from '../icons/index.js';
+import { User, Bell, LogOut } from '../icons/index.js';
 
 const Header = ({user, onLogout}) => {
     return React.createElement("header", {
@@ -30,7 +30,7 @@ const Header = ({user, onLogout}) => {
                 React.createElement("div", {
                     key: "user-avatar",
                     className: `p-2 rounded-full ${user.role === "manager" ? "bg-orange-100" : "bg-blue-100"}`,
-                }, React.createElement(ClipboardList, {
+                }, React.createElement(User, {
                     className: `h-4 w-4 ${user.role === "manager" ? "text-orange-600" : "text-blue-600"}`
                 })),
                 React.createElement("div", {

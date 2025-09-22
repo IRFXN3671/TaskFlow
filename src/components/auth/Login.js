@@ -1,6 +1,6 @@
 import React from 'react';
 import { authService } from '../../services/AuthService.js';
-import { ClipboardList, LogIn, AlertCircle } from '../icons/index.js';
+import { User, LogIn, AlertCircle } from '../icons/index.js';
 
 const Login = ({onLogin}) => {
     const [username, setUsername] = React.useState("")
@@ -61,7 +61,7 @@ const Login = ({onLogin}) => {
                 React.createElement("div", {
                     key: "icon",
                     className: "w-16 h-16 bg-gradient-to-r from-blue-600 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4",
-                }, React.createElement(ClipboardList, {
+                }, React.createElement(User, {
                     className: "h-8 w-8 text-white"
                 })),
                 React.createElement("h1", {
