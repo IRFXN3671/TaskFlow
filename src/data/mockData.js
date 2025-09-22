@@ -2,22 +2,22 @@ const mockUsers = [{
     id: "1",
     username: "manager1",
     role: "manager",
-    name: "Sarah Johnson"
+    name: "Irfan"
 }, {
     id: "2",
     username: "employee1",
     role: "employee",
-    name: "Mike Chen"
+    name: "Nidal"
 }, {
     id: "3",
     username: "employee2",
     role: "employee",
-    name: "Emily Davis"
+    name: "Wasim"
 }, {
     id: "4",
     username: "employee3",
     role: "employee",
-    name: "Alex Rodriguez"
+    name: "Sanin"
 }];
 
 const mockTasks = [{
@@ -28,7 +28,7 @@ const mockTasks = [{
     priority: "high",
     dueDate: "2025-02-01",
     assigneeId: "2",
-    assigneeName: "Mike Chen",
+    assigneeName: "Nidal",
     createdAt: "2025-01-15T10:00:00Z",
     updatedAt: "2025-01-16T14:30:00Z"
 }, {
@@ -39,7 +39,7 @@ const mockTasks = [{
     priority: "medium",
     dueDate: "2025-01-28",
     assigneeId: "3",
-    assigneeName: "Emily Davis",
+    assigneeName: "Wasim",
     createdAt: "2025-01-14T09:00:00Z",
     updatedAt: "2025-01-14T09:00:00Z"
 }, {
@@ -50,7 +50,7 @@ const mockTasks = [{
     priority: "high",
     dueDate: "2025-01-20",
     assigneeId: "4",
-    assigneeName: "Alex Rodriguez",
+    assigneeName: "Sanin",
     createdAt: "2025-01-12T11:00:00Z",
     updatedAt: "2025-01-18T16:00:00Z"
 }, {
@@ -61,7 +61,7 @@ const mockTasks = [{
     priority: "medium",
     dueDate: "2025-02-05",
     assigneeId: "2",
-    assigneeName: "Mike Chen",
+    assigneeName: "Nidal",
     createdAt: "2025-01-16T13:00:00Z",
     updatedAt: "2025-01-16T13:00:00Z"
 }, {
@@ -72,7 +72,7 @@ const mockTasks = [{
     priority: "high",
     dueDate: "2025-01-25",
     assigneeId: "3",
-    assigneeName: "Emily Davis",
+    assigneeName: "Wasim",
     createdAt: "2025-01-13T15:00:00Z",
     updatedAt: "2025-01-17T10:00:00Z"
 }, {
@@ -83,7 +83,7 @@ const mockTasks = [{
     priority: "low",
     dueDate: "2025-01-22",
     assigneeId: "4",
-    assigneeName: "Alex Rodriguez",
+    assigneeName: "Sanin",
     createdAt: "2025-01-11T08:00:00Z",
     updatedAt: "2025-01-19T12:00:00Z"
 }];

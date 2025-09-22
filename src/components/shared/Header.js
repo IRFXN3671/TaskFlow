@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Bell, LogOut } from '../icons/index.js';
+import { User, LogOut } from '../icons/index.js';
 
 const Header = ({user, onLogout}) => {
     return React.createElement("header", {
@@ -13,7 +13,7 @@ const Header = ({user, onLogout}) => {
             React.createElement("h1", {
                 key: "title",
                 className: "text-2xl font-bold text-gray-900",
-            }, "Task Tracker"),
+            }, "TaskFlow"),
             React.createElement("p", {
                 key: "welcome",
                 className: "text-sm text-gray-600",
@@ -46,12 +46,6 @@ const Header = ({user, onLogout}) => {
                     }, user.role.charAt(0).toUpperCase() + user.role.slice(1))
                 ])
             ]),
-            React.createElement("button", {
-                key: "notifications",
-                className: "p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors",
-            }, React.createElement(Bell, {
-                className: "h-5 w-5"
-            })),
             React.createElement("button", {
                 key: "logout",
                 onClick: onLogout,

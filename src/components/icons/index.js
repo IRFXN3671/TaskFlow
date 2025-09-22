@@ -29,6 +29,7 @@ export const Clock = Z("Clock", [["circle", { cx: "12", cy: "12", r: "10" }], ["
 export const Filter = Z("Filter", [["polygon", { points: "22,3 2,3 10,12.46 10,19 14,21 14,12.46" }]]);
 export const Flag = Z("Flag", [["path", { d: "M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" }], ["line", { x1: "4", y1: "22", x2: "4", y2: "15" }]]);
 export const LogIn = Z("LogIn", [["path", { d: "m15 3 4 4-4 4" }], ["path", { d: "M2 17h12" }], ["path", { d: "m2 21 4-4-4-4" }]]);
+export const LoginDoor = Z("LoginDoor", [["rect", { x: "3", y: "3", width: "18", height: "18", rx: "2", ry: "2" }], ["circle", { cx: "9", cy: "12", r: "1" }], ["path", { d: "m16 3-4 4 4 4" }], ["path", { d: "M14 12h7" }]]);
 export const LogOut = Z("LogOut", [["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" }], ["polyline", { points: "16,17 21,12 16,7" }], ["line", { x1: "21", y1: "12", x2: "9", y2: "12" }]]);
 export const Plus = Z("Plus", [["line", { x1: "12", y1: "5", x2: "12", y2: "19" }], ["line", { x1: "5", y1: "12", x2: "19", y2: "12" }]]);
 export const Save = Z("Save", [["path", { d: "M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" }], ["polyline", { points: "17,21 17,13 7,13 7,21" }], ["polyline", { points: "7,3 7,8 15,8" }]]);

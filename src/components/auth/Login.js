@@ -1,6 +1,6 @@
 import React from 'react';
 import { authService } from '../../services/AuthService.js';
-import { User, LogIn, AlertCircle } from '../icons/index.js';
+import { User, LogIn, AlertCircle, ClipboardList, LoginDoor } from '../icons/index.js';
 
 const Login = ({onLogin}) => {
     const [username, setUsername] = React.useState("")
@@ -25,19 +25,19 @@ const Login = ({onLogin}) => {
     const demoAccounts = [{
         username: "manager1",
         role: "Manager",
-        name: "Sarah Johnson"
+        name: "Irfan"
     }, {
         username: "employee1",
         role: "Employee",
-        name: "Mike Chen"
+        name: "Nidal"
     }, {
         username: "employee2",
         role: "Employee",
-        name: "Emily Davis"
+        name: "Wasim"
     }, {
         username: "employee3",
         role: "Employee",
-        name: "Alex Rodriguez"
+        name: "Sanin"
     }];
     
     const selectDemoAccount = (demoUsername) => {
@@ -67,7 +67,7 @@ const Login = ({onLogin}) => {
                 React.createElement("h1", {
                     key: "title",
                     className: "text-2xl font-bold text-gray-900 mb-2",
-                }, "Task Tracker"),
+                }, "TaskFlow"),
                 React.createElement("p", {
                     key: "subtitle",
                     className: "text-gray-600",
@@ -136,13 +136,7 @@ const Login = ({onLogin}) => {
                     className: "w-full bg-gradient-to-r from-blue-600 to-teal-600 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-teal-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2",
                 }, loading ? React.createElement("div", {
                     className: "w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"
-                }) : [
-                    React.createElement(LogIn, {
-                        key: "login-icon",
-                        className: "h-5 w-5"
-                    }),
-                    "Sign In"
-                ])
+                }) : "Sign In")
             ])
         ]),
         React.createElement("div", {

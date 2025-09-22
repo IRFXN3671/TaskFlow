@@ -1,5 +1,5 @@
 import React from 'react';
-import { ClipboardList, Calendar, Clock, Flag } from '../icons/index.js';
+import { ClipboardList, Calendar, Clock, Flag, User } from '../icons/index.js';
 
 const TaskCard = ({task, onStatusChange, onEdit, onDelete, canEdit, canDelete}) => {
     const statusStyles = {
@@ -76,7 +76,7 @@ const TaskCard = ({task, onStatusChange, onEdit, onDelete, canEdit, canDelete}) 
                     key: "assignee",
                     className: "flex items-center gap-2",
                 }, [
-                    React.createElement(ClipboardList, {
+                    React.createElement(User, {
                         key: "assignee-icon",
                         className: "h-4 w-4"
                     }),

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart3, Users, Plus } from '../icons/index.js';
+import { BarChart3, Users, Plus, User } from '../icons/index.js';
 import StatsCards from './StatsCards.js';
 import Chart from './Chart.js';
 import TaskFilters from '../tasks/TaskFilters.js';
@@ -181,33 +181,6 @@ const ManagerDashboard = ({
                     "Create Task"
                 ])
             ]),
-            React.createElement("div", {
-                key: "search-section",
-                className: "bg-white rounded-lg border border-gray-200 p-4"
-            }, React.createElement("div", {
-                className: "relative"
-            }, [
-                React.createElement("div", {
-                    key: "search-icon",
-                    className: "absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
-                }, React.createElement("svg", {
-                    className: "h-5 w-5 text-gray-400",
-                    fill: "none",
-                    viewBox: "0 0 24 24",
-                    stroke: "currentColor"
-                }, React.createElement("path", {
-                    strokeLinecap: "round",
-                    strokeLinejoin: "round",
-                    strokeWidth: 2,
-                    d: "m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                }))),
-                React.createElement("input", {
-                    key: "search-input",
-                    type: "text",
-                    placeholder: "Search tasks by title or description...",
-                    className: "block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                })
-            ])),
             React.createElement(TaskFilters, {
                 key: "filters",
                 filters: filters,
@@ -278,7 +251,7 @@ const ManagerDashboard = ({
                 key: "tasks-tab",
                 id: "tasks",
                 label: "Task Management",
-                icon: Users,
+                icon: User,
                 isActive: activeTab === "tasks",
                 onClick: setActiveTab
             })
