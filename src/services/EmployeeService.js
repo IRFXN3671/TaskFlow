@@ -283,6 +283,41 @@ class EmployeeService {
         };
     }
 
+    // Change employee password
+    changeEmployeePassword(username, newPassword) {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                try {
+                    console.log('EmployeeService: Changing password for', username, 'to', newPassword);
+                    
+                    // Find the employee by username
+                    const employee = this.employees.find(emp => emp.username === username);
+                    if (!employee) {
+                        reject(new Error('Employee not found'));
+                        return;
+                    }
+
+                    console.log('Found employee:', employee.name, 'Current password:', this.credentials[username]);
+
+                    // Update the password in credentials
+                    this.credentials[username] = newPassword;
+                    
+                    // Update the defaultPassword field in employee data
+                    employee.defaultPassword = newPassword;
+
+                    console.log('Updated credentials:', this.credentials[username]);
+                    console.log('Updated employee defaultPassword:', employee.defaultPassword);
+
+                    this.notifyListeners();
+                    resolve({ success: true, message: "Employee password updated successfully" });
+                } catch (error) {
+                    console.error('Error changing employee password:', error);
+                    reject(new Error('Failed to update employee password: ' + error.message));
+                }
+            }, 300);
+        });
+    }
+
     notifyListeners() {
         this.listeners.forEach(listener => listener());
     }

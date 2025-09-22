@@ -1,5 +1,6 @@
 import React from 'react';
 import Login from './components/auth/Login.js';
+import ChangePasswordModal from './components/auth/ChangePasswordModal.js';
 import Header from './components/shared/Header.js';
 import StatsCards from './components/dashboard/StatsCards.js';
 import Chart from './components/dashboard/Chart.js';
@@ -21,6 +22,8 @@ const App = () => {
     const [isModalOpen, setIsModalOpen] = React.useState(false);
     const [editingTask, setEditingTask] = React.useState(null);
     const [loading, setLoading] = React.useState(true);
+    const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = React.useState(false);
+    const [isChangingPassword, setIsChangingPassword] = React.useState(false);
 
     React.useEffect(() => {
         const currentUser = authService.getCurrentUser();
@@ -122,6 +125,22 @@ const App = () => {
         setIsModalOpen(true);
     };
 
+    const handleChangePassword = async (currentPassword, newPassword) => {
+        setIsChangingPassword(true);
+        try {
+            await authService.changePassword(currentPassword, newPassword);
+            alert("Password changed successfully!");
+        } catch (error) {
+            throw error; // Let the modal handle the error
+        } finally {
+            setIsChangingPassword(false);
+        }
+    };
+
+    const handleOpenChangePasswordModal = () => {
+        setIsChangePasswordModalOpen(true);
+    };
+
     if (loading) {
         return React.createElement("div", {
             className: "min-h-screen bg-gray-50 flex items-center justify-center"
@@ -162,7 +181,8 @@ const App = () => {
         React.createElement(Header, {
             key: "header",
             user: user,
-            onLogout: handleLogout
+            onLogout: handleLogout,
+            onChangePassword: handleOpenChangePasswordModal
         }),
         React.createElement("main", {
             key: "main",
@@ -251,6 +271,13 @@ const App = () => {
             },
             onSubmit: handleTaskSubmit,
             isManager: isManager
+        }),
+        React.createElement(ChangePasswordModal, {
+            key: "change-password-modal",
+            isOpen: isChangePasswordModalOpen,
+            onClose: () => setIsChangePasswordModalOpen(false),
+            onChangePassword: handleChangePassword,
+            isLoading: isChangingPassword
         })
     ]);
 };
