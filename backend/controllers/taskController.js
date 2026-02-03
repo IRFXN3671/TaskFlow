@@ -236,12 +236,18 @@ export async function deleteTask(req, res) {
 // Get dashboard statistics
 export async function getDashboardStats(req, res) {
     try {
-        let query = 'SELECT * FROM tasks WHERE 1=1';
+        let query = `
+            SELECT t.*, u.name AS assignee_name
+            FROM tasks t
+            LEFT JOIN employees e ON t.assignee_id = e.user_id
+            LEFT JOIN users u ON e.user_id = u.id
+            WHERE 1=1
+        `;
         const params = [];
 
         // For employees: only their stats
         if (req.user.role === 'employee') {
-            query += ' AND assignee_id = $1';
+            query += ' AND t.assignee_id = $1';
             params.push(req.user.id);
         }
 
@@ -249,6 +255,12 @@ export async function getDashboardStats(req, res) {
         const tasks = tasksResult.rows;
 
         const now = new Date();
+
+        const tasksByAssignee = tasks.reduce((acc, task) => {
+            const name = task.assignee_name || 'Unassigned';
+            acc[name] = (acc[name] || 0) + 1;
+            return acc;
+        }, {});
 
         const stats = {
             totalTasks: tasks.length,
@@ -263,6 +275,7 @@ export async function getDashboardStats(req, res) {
                 medium: tasks.filter(t => t.priority === 'medium').length,
                 high: tasks.filter(t => t.priority === 'high').length
             },
+            tasksByAssignee,
             completionRate: tasks.length > 0 
                 ? ((tasks.filter(t => t.status === 'completed').length / tasks.length) * 100).toFixed(2)
                 : 0

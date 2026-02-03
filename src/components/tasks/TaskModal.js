@@ -14,6 +14,7 @@ const TaskModal = ({task, isOpen, onClose, onSubmit, isManager}) => {
     const [loading, setLoading] = React.useState(false);
     const [activeEmployees, setActiveEmployees] = React.useState([]);
     const [loadingEmployees, setLoadingEmployees] = React.useState(false);
+    const today = new Date().toISOString().split('T')[0];
     
     React.useEffect(() => {
         setFormData(task ? {
@@ -225,6 +226,7 @@ const TaskModal = ({task, isOpen, onClose, onSubmit, isManager}) => {
                         id: "dueDate",
                         name: "dueDate",
                         value: formData.dueDate,
+                        min: today,
                         onChange: handleInputChange,
                         required: true,
                         className: "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
