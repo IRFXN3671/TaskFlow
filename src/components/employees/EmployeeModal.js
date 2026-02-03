@@ -75,7 +75,12 @@ const EmployeeModal = ({
     const handleSubmit = (e) => {
         e.preventDefault();
         if (validateForm()) {
-            onSave(formData);
+            // Generate username from email (before @)
+            const username = formData.email.split('@')[0];
+            onSave({
+                ...formData,
+                username: username
+            });
         }
     };
 

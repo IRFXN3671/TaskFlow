@@ -253,8 +253,8 @@ const TaskModal = ({task, isOpen, onClose, onSubmit, isManager}) => {
                             value: "",
                         }, loadingEmployees ? "Loading employees..." : "Select an employee"),
                         ...activeEmployees.map(employee => React.createElement("option", {
-                            key: employee.id,
-                            value: employee.id,
+                            key: employee.userId,
+                            value: employee.userId,
                         }, `${employee.name} - ${employee.position}`))
                     ])
                 ])

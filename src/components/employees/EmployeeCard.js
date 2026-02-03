@@ -118,7 +118,7 @@ const EmployeeCard = ({
                         React.createElement("button", {
                             key: "toggle-status",
                             onClick: () => {
-                                onToggleStatus(employee.id);
+                                onToggleStatus(employee.userId);
                                 setIsMenuOpen(false);
                             },
                             className: "w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
@@ -129,7 +129,7 @@ const EmployeeCard = ({
                         React.createElement("button", {
                             key: "reset-password",
                             onClick: () => {
-                                onResetPassword(employee.id);
+                                onResetPassword(employee.userId);
                                 setIsMenuOpen(false);
                             },
                             className: "w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
@@ -141,7 +141,7 @@ const EmployeeCard = ({
                         React.createElement("button", {
                             key: "delete",
                             onClick: () => {
-                                onDelete(employee.id);
+                                onDelete(employee.userId);
                                 setIsMenuOpen(false);
                             },
                             className: "w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"

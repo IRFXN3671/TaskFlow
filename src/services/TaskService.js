@@ -1,214 +1,157 @@
-import { mockTasks } from '../data/mockData.js';
-import { employeeService } from './EmployeeService.js';
+import { authService } from './AuthService.js';
 
-const STORAGE_KEY = "task_tracker_tasks";
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 class TaskService {
     constructor() {
         this.listeners = [];
-        if (!localStorage.getItem(STORAGE_KEY)) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(mockTasks));
+    }
+
+    getAuthHeaders() {
+        const token = authService.getToken();
+        return {
+            'Content-Type': 'application/json',
+            ...(token && { 'Authorization': `Bearer ${token}` })
+        };
+    }
+
+    async getAllTasks(filters = {}, sort = { field: "dueDate", direction: "asc" }) {
+        try {
+            const params = new URLSearchParams();
+
+            if (filters.search) {
+                params.append('search', filters.search);
+            }
+            if (filters.status) {
+                params.append('status', filters.status);
+            }
+            if (filters.priority) {
+                params.append('priority', filters.priority);
+            }
+            if (filters.assigneeId) {
+                params.append('assigneeId', filters.assigneeId);
+            }
+
+            const sortBy = sort.field === 'dueDate' ? 'due_date' : sort.field === 'createdAt' ? 'created_at' : sort.field;
+            params.append('sortBy', sortBy);
+            params.append('sortOrder', sort.direction.toUpperCase());
+
+            const response = await fetch(`${API_URL}/tasks?${params}`, {
+                method: 'GET',
+                headers: this.getAuthHeaders()
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to fetch tasks');
+            }
+
+            // Transform backend response to match frontend format
+            return (data.data || []).map(task => ({
+                ...task,
+                assigneeId: task.assignee_id,
+                assigneeName: task.assignee_name || 'Unknown',
+                createdAt: task.created_at,
+                updatedAt: task.updated_at,
+                dueDate: task.due_date
+            }));
+        } catch (error) {
+            console.error('Error fetching tasks:', error);
+            throw error;
         }
     }
 
-    getTasks() {
-        const tasksStr = localStorage.getItem(STORAGE_KEY);
-        return tasksStr ? JSON.parse(tasksStr) : [];
+    async createTask(taskData) {
+        try {
+            const response = await fetch(`${API_URL}/tasks`, {
+                method: 'POST',
+                headers: this.getAuthHeaders(),
+                body: JSON.stringify({
+                    title: taskData.title,
+                    description: taskData.description,
+                    status: taskData.status,
+                    priority: taskData.priority,
+                    dueDate: taskData.dueDate,
+                    assigneeId: taskData.assigneeId
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to create task');
+            }
+
+            this.notifyListeners();
+            return data.data;
+        } catch (error) {
+            console.error('Error creating task:', error);
+            throw error;
+        }
     }
 
-    saveTasks(tasks) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-        this.notifyListeners();
+    async updateTask(taskId, taskData) {
+        try {
+            const response = await fetch(`${API_URL}/tasks/${taskId}`, {
+                method: 'PUT',
+                headers: this.getAuthHeaders(),
+                body: JSON.stringify(taskData)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to update task');
+            }
+
+            this.notifyListeners();
+            return data.data;
+        } catch (error) {
+            console.error('Error updating task:', error);
+            throw error;
+        }
     }
 
-    getAllTasks(filters = {}, sort = { field: "dueDate", direction: "asc" }) {
-        return new Promise(resolve => {
-            setTimeout(() => {
-                let tasks = this.getTasks();
-                
-                if (filters.search) {
-                    const searchLower = filters.search.toLowerCase();
-                    tasks = tasks.filter(task => 
-                        task.title.toLowerCase().includes(searchLower) ||
-                        task.description.toLowerCase().includes(searchLower)
-                    );
-                }
-                
-                if (filters.status) {
-                    tasks = tasks.filter(task => task.status === filters.status);
-                }
-                
-                if (filters.priority) {
-                    tasks = tasks.filter(task => task.priority === filters.priority);
-                }
-                
-                if (filters.assigneeId) {
-                    tasks = tasks.filter(task => task.assigneeId === filters.assigneeId);
-                }
-                
-                if (sort) {
-                    tasks.sort((a, b) => {
-                        let aValue = a[sort.field];
-                        let bValue = b[sort.field];
-                        
-                        if (sort.field === "priority") {
-                            const priorityOrder = { low: 1, medium: 2, high: 3 };
-                            aValue = priorityOrder[aValue];
-                            bValue = priorityOrder[bValue];
-                        }
-                        
-                        if (sort.field === "dueDate" || sort.field === "createdAt") {
-                            aValue = new Date(aValue).getTime();
-                            bValue = new Date(bValue).getTime();
-                        }
-                        
-                        if (aValue < bValue) return sort.direction === "asc" ? -1 : 1;
-                        if (aValue > bValue) return sort.direction === "asc" ? 1 : -1;
-                        return 0;
-                    });
-                }
-                
-                resolve(tasks);
-            }, 300);
-        });
+    async deleteTask(taskId) {
+        try {
+            const response = await fetch(`${API_URL}/tasks/${taskId}`, {
+                method: 'DELETE',
+                headers: this.getAuthHeaders()
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to delete task');
+            }
+
+            this.notifyListeners();
+        } catch (error) {
+            console.error('Error deleting task:', error);
+            throw error;
+        }
     }
 
-    createTask(taskData) {
-        return new Promise(async (resolve) => {
-            setTimeout(async () => {
-                try {
-                    const tasks = this.getTasks();
-                    const employees = await employeeService.getAllEmployees();
-                    const assignee = employees.find(emp => emp.id === taskData.assigneeId);
-                    const newTask = {
-                        ...taskData,
-                        id: Date.now().toString(),
-                        assigneeName: assignee?.name || "Unknown",
-                        createdAt: new Date().toISOString(),
-                        updatedAt: new Date().toISOString()
-                    };
-                    tasks.push(newTask);
-                    this.saveTasks(tasks);
-                    resolve(newTask);
-                } catch (error) {
-                    console.error('Error creating task:', error);
-                    // Fallback to basic task creation
-                    const tasks = this.getTasks();
-                    const newTask = {
-                        ...taskData,
-                        id: Date.now().toString(),
-                        assigneeName: "Unknown",
-                        createdAt: new Date().toISOString(),
-                        updatedAt: new Date().toISOString()
-                    };
-                    tasks.push(newTask);
-                    this.saveTasks(tasks);
-                    resolve(newTask);
-                }
-            }, 500);
-        });
-    }
+    async getDashboardStats(userId) {
+        try {
+            const response = await fetch(`${API_URL}/tasks/stats`, {
+                method: 'GET',
+                headers: this.getAuthHeaders()
+            });
 
-    updateTask(taskId, taskData) {
-        return new Promise(async (resolve, reject) => {
-            setTimeout(async () => {
-                try {
-                    const tasks = this.getTasks();
-                    const taskIndex = tasks.findIndex(task => task.id === taskId);
-                    
-                    if (taskIndex === -1) {
-                        reject(new Error("Task not found"));
-                        return;
-                    }
-                    
-                    const updatedTask = {
-                        ...tasks[taskIndex],
-                        ...taskData,
-                        updatedAt: new Date().toISOString()
-                    };
-                    
-                    if (taskData.assigneeId) {
-                        try {
-                            const employees = await employeeService.getAllEmployees();
-                            const assignee = employees.find(emp => emp.id === taskData.assigneeId);
-                            updatedTask.assigneeName = assignee?.name || "Unknown";
-                        } catch (error) {
-                            console.error('Error fetching employees for task update:', error);
-                            updatedTask.assigneeName = "Unknown";
-                        }
-                    }
-                    
-                    tasks[taskIndex] = updatedTask;
-                    this.saveTasks(tasks);
-                    resolve(updatedTask);
-                } catch (error) {
-                    reject(error);
-                }
-            }, 400);
-        });
-    }
+            const data = await response.json();
 
-    deleteTask(taskId) {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                const tasks = this.getTasks();
-                const taskIndex = tasks.findIndex(task => task.id === taskId);
-                
-                if (taskIndex === -1) {
-                    reject(new Error("Task not found"));
-                    return;
-                }
-                
-                tasks.splice(taskIndex, 1);
-                this.saveTasks(tasks);
-                resolve();
-            }, 300);
-        });
-    }
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to fetch statistics');
+            }
 
-    getDashboardStats(userId) {
-        return new Promise(resolve => {
-            setTimeout(() => {
-                let tasks = this.getTasks();
-                
-                if (userId) {
-                    tasks = tasks.filter(task => task.assigneeId === userId);
-                }
-                
-                const now = new Date();
-                const overdueTasks = tasks.filter(task => 
-                    new Date(task.dueDate) < now && task.status !== "completed"
-                ).length;
-                
-                const tasksByPriority = tasks.reduce((acc, task) => {
-                    acc[task.priority]++;
-                    return acc;
-                }, { low: 0, medium: 0, high: 0 });
-                
-                const tasksByAssignee = tasks.reduce((acc, task) => {
-                    acc[task.assigneeName] = (acc[task.assigneeName] || 0) + 1;
-                    return acc;
-                }, {});
-                
-                const completedTasks = tasks.filter(task => task.status === "completed").length;
-                const completionRate = tasks.length > 0 ? completedTasks / tasks.length * 100 : 0;
-                
-                const stats = {
-                    totalTasks: tasks.length,
-                    completedTasks: completedTasks,
-                    pendingTasks: tasks.filter(task => task.status === "pending").length,
-                    inProgressTasks: tasks.filter(task => task.status === "in-progress").length,
-                    overdueTasks: overdueTasks,
-                    tasksByPriority: tasksByPriority,
-                    tasksByAssignee: tasksByAssignee,
-                    completionRate: completionRate
-                };
-                
-                resolve(stats);
-            }, 400);
-        });
+            return data.data || {};
+        } catch (error) {
+            console.error('Error fetching dashboard stats:', error);
+            throw error;
+        }
     }
-
     notifyListeners() {
         this.listeners.forEach(listener => listener());
     }

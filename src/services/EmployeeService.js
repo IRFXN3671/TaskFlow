@@ -1,278 +1,245 @@
-import { mockEmployees, mockUsers, mockCredentials, availableSkills } from '../data/mockData.js';
+import { authService } from './AuthService.js';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 class EmployeeService {
     constructor() {
-        this.employees = [...mockEmployees];
-        this.users = [...mockUsers];
-        this.credentials = {...mockCredentials};
         this.listeners = [];
     }
 
+    getAuthHeaders() {
+        const token = authService.getToken();
+        return {
+            'Content-Type': 'application/json',
+            ...(token && { 'Authorization': `Bearer ${token}` })
+        };
+    }
+
     // Get all employees
-    getAllEmployees() {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve([...this.employees]);
-            }, 300);
-        });
+    async getAllEmployees() {
+        try {
+            const response = await fetch(`${API_URL}/employees`, {
+                method: 'GET',
+                headers: this.getAuthHeaders()
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to fetch employees');
+            }
+
+            return (data.data || []).map(emp => ({
+                ...emp,
+                isActive: emp.is_active,
+                userId: emp.user_id,
+                joinedDate: emp.joined_date,
+                lastLogin: emp.last_login
+            }));
+        } catch (error) {
+            console.error('Error fetching employees:', error);
+            throw error;
+        }
     }
 
     // Get only active employees
-    getActiveEmployees() {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve(this.employees.filter(emp => emp.isActive));
-            }, 200);
-        });
+    async getActiveEmployees() {
+        try {
+            const response = await fetch(`${API_URL}/employees/active`, {
+                method: 'GET',
+                headers: this.getAuthHeaders()
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to fetch active employees');
+            }
+
+            return (data.data || []).map(emp => ({
+                ...emp,
+                isActive: emp.is_active,
+                userId: emp.user_id,
+                joinedDate: emp.joined_date,
+                lastLogin: emp.last_login
+            }));
+        } catch (error) {
+            console.error('Error fetching active employees:', error);
+            throw error;
+        }
     }
 
     // Get employee by ID
-    getEmployeeById(id) {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                const employee = this.employees.find(emp => emp.id === id);
-                if (employee) {
-                    resolve({...employee});
-                } else {
-                    reject(new Error('Employee not found'));
-                }
-            }, 200);
-        });
+    async getEmployeeById(id) {
+        try {
+            const response = await fetch(`${API_URL}/employees/${id}`, {
+                method: 'GET',
+                headers: this.getAuthHeaders()
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Employee not found');
+            }
+
+            return {
+                ...data.data,
+                isActive: data.data.is_active,
+                userId: data.data.user_id,
+                joinedDate: data.data.joined_date,
+                lastLogin: data.data.last_login
+            };
+        } catch (error) {
+            console.error('Error fetching employee:', error);
+            throw error;
+        }
     }
 
     // Create new employee
-    createEmployee(employeeData) {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                try {
-                    // Generate unique ID
-                    const newId = (Math.max(...this.employees.map(emp => parseInt(emp.id))) + 1).toString();
-                    
-                    // Generate username and use default password
-                    const username = this.generateUsername(employeeData.name);
-                    const defaultPassword = "password123";
-                    
-                    const newEmployee = {
-                        id: newId,
-                        name: employeeData.name,
-                        email: employeeData.email,
-                        position: employeeData.position,
-                        department: employeeData.department,
-                        username: username,
-                        defaultPassword: defaultPassword,
-                        isActive: true,
-                        joinedDate: new Date().toISOString().split('T')[0],
-                        lastLogin: null,
-                        skills: employeeData.skills || []
-                    };
+    async createEmployee(employeeData) {
+        try {
+            const response = await fetch(`${API_URL}/employees`, {
+                method: 'POST',
+                headers: this.getAuthHeaders(),
+                body: JSON.stringify({
+                    name: employeeData.name,
+                    email: employeeData.email,
+                    position: employeeData.position,
+                    department: employeeData.department,
+                    username: employeeData.username,
+                    password: employeeData.password || 'password123',
+                    skills: employeeData.skills || []
+                })
+            });
 
-                    // Add to employees array
-                    this.employees.push(newEmployee);
+            const data = await response.json();
 
-                    // Add to users array
-                    const newUser = {
-                        id: newId,
-                        username: username,
-                        role: "employee",
-                        name: employeeData.name
-                    };
-                    this.users.push(newUser);
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to create employee');
+            }
 
-                    // Add credentials
-                    this.credentials[username] = defaultPassword;
-
-                    this.notifyListeners();
-                    resolve({...newEmployee});
-                } catch (error) {
-                    reject(new Error('Failed to create employee: ' + error.message));
-                }
-            }, 500);
-        });
+            this.notifyListeners();
+            return data.data;
+        } catch (error) {
+            console.error('Error creating employee:', error);
+            throw error;
+        }
     }
 
     // Update employee
-    updateEmployee(id, updates) {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                const employeeIndex = this.employees.findIndex(emp => emp.id === id);
-                if (employeeIndex === -1) {
-                    reject(new Error('Employee not found'));
-                    return;
-                }
+    async updateEmployee(id, updates) {
+        try {
+            const response = await fetch(`${API_URL}/employees/${id}`, {
+                method: 'PUT',
+                headers: this.getAuthHeaders(),
+                body: JSON.stringify(updates)
+            });
 
-                const updatedEmployee = {
-                    ...this.employees[employeeIndex],
-                    ...updates,
-                    id: id // Ensure ID doesn't change
-                };
+            const data = await response.json();
 
-                this.employees[employeeIndex] = updatedEmployee;
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to update employee');
+            }
 
-                // Update user data if name changed
-                if (updates.name) {
-                    const userIndex = this.users.findIndex(user => user.id === id);
-                    if (userIndex !== -1) {
-                        this.users[userIndex].name = updates.name;
-                    }
-                }
-
-                this.notifyListeners();
-                resolve({...updatedEmployee});
-            }, 300);
-        });
+            this.notifyListeners();
+            return data.data;
+        } catch (error) {
+            console.error('Error updating employee:', error);
+            throw error;
+        }
     }
 
     // Toggle employee active status
-    toggleEmployeeStatus(id) {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                const employeeIndex = this.employees.findIndex(emp => emp.id === id);
-                if (employeeIndex === -1) {
-                    reject(new Error('Employee not found'));
-                    return;
-                }
+    async toggleEmployeeStatus(id) {
+        try {
+            const response = await fetch(`${API_URL}/employees/${id}/status`, {
+                method: 'PATCH',
+                headers: this.getAuthHeaders()
+            });
 
-                this.employees[employeeIndex].isActive = !this.employees[employeeIndex].isActive;
-                this.notifyListeners();
-                resolve({...this.employees[employeeIndex]});
-            }, 200);
-        });
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to toggle employee status');
+            }
+
+            this.notifyListeners();
+            return data.data;
+        } catch (error) {
+            console.error('Error toggling employee status:', error);
+            throw error;
+        }
     }
 
     // Delete employee
-    deleteEmployee(id) {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                const employeeIndex = this.employees.findIndex(emp => emp.id === id);
-                if (employeeIndex === -1) {
-                    reject(new Error('Employee not found'));
-                    return;
-                }
+    async deleteEmployee(id) {
+        try {
+            const response = await fetch(`${API_URL}/employees/${id}`, {
+                method: 'DELETE',
+                headers: this.getAuthHeaders()
+            });
 
-                const employee = this.employees[employeeIndex];
-                
-                // Remove from employees
-                this.employees.splice(employeeIndex, 1);
-                
-                // Remove from users
-                const userIndex = this.users.findIndex(user => user.id === id);
-                if (userIndex !== -1) {
-                    this.users.splice(userIndex, 1);
-                }
+            const data = await response.json();
 
-                // Remove credentials
-                delete this.credentials[employee.username];
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to delete employee');
+            }
 
-                this.notifyListeners();
-                resolve(true);
-            }, 300);
-        });
+            this.notifyListeners();
+        } catch (error) {
+            console.error('Error deleting employee:', error);
+            throw error;
+        }
     }
 
     // Reset employee password
-    resetPassword(id) {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                const employeeIndex = this.employees.findIndex(emp => emp.id === id);
-                if (employeeIndex === -1) {
-                    reject(new Error('Employee not found'));
-                    return;
-                }
+    async resetPassword(id) {
+        try {
+            const response = await fetch(`${API_URL}/employees/${id}/reset-password`, {
+                method: 'POST',
+                headers: this.getAuthHeaders()
+            });
 
-                const newPassword = "password123";
-                const employee = this.employees[employeeIndex];
-                
-                employee.defaultPassword = newPassword;
-                this.credentials[employee.username] = newPassword;
+            const data = await response.json();
 
-                this.notifyListeners();
-                resolve({
-                    username: employee.username,
-                    password: newPassword
-                });
-            }, 300);
-        });
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to reset password');
+            }
+
+            this.notifyListeners();
+            return data;
+        } catch (error) {
+            console.error('Error resetting password:', error);
+            throw error;
+        }
     }
 
     // Get employee statistics
-    getEmployeeStats() {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                const totalEmployees = this.employees.length;
-                const activeEmployees = this.employees.filter(emp => emp.isActive).length;
-                const inactiveEmployees = totalEmployees - activeEmployees;
-                
-                const departmentStats = this.employees.reduce((acc, emp) => {
-                    acc[emp.department] = (acc[emp.department] || 0) + 1;
-                    return acc;
-                }, {});
+    async getEmployeeStats() {
+        try {
+            const response = await fetch(`${API_URL}/employees/stats`, {
+                method: 'GET',
+                headers: this.getAuthHeaders()
+            });
 
-                // Calculate skills statistics
-                const skillsStats = {};
-                this.employees.forEach(emp => {
-                    if (emp.skills) {
-                        emp.skills.forEach(skill => {
-                            skillsStats[skill] = (skillsStats[skill] || 0) + 1;
-                        });
-                    }
-                });
+            const data = await response.json();
 
-                resolve({
-                    totalEmployees,
-                    activeEmployees,
-                    inactiveEmployees,
-                    departmentStats,
-                    skillsStats
-                });
-            }, 200);
-        });
-    }
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to fetch employee statistics');
+            }
 
-    // Get available skills for autocomplete
-    getAvailableSkills() {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve([...availableSkills]);
-            }, 100);
-        });
-    }
-
-    // Get all skills currently used by employees
-    getUsedSkills() {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                const usedSkills = new Set();
-                this.employees.forEach(emp => {
-                    if (emp.skills) {
-                        emp.skills.forEach(skill => usedSkills.add(skill));
-                    }
-                });
-                resolve(Array.from(usedSkills).sort());
-            }, 100);
-        });
-    }
-
-    // Helper methods
-    generateUsername(name) {
-        const baseName = name.toLowerCase().replace(/\s+/g, '');
-        let username = baseName;
-        let counter = 1;
-        
-        // Check if username already exists
-        while (this.users.some(user => user.username === username) || 
-               this.employees.some(emp => emp.username === username)) {
-            username = `${baseName}${counter}`;
-            counter++;
+            return data.data || {};
+        } catch (error) {
+            console.error('Error fetching employee stats:', error);
+            throw error;
         }
-        
-        return username;
     }
 
-    generateDefaultPassword() {
-        return "password123";
+    notifyListeners() {
+        this.listeners.forEach(listener => listener());
     }
 
-    // Subscription methods
     subscribe(listener) {
         this.listeners.push(listener);
         return () => {
@@ -280,54 +247,6 @@ class EmployeeService {
             if (index > -1) {
                 this.listeners.splice(index, 1);
             }
-        };
-    }
-
-    // Change employee password
-    changeEmployeePassword(username, newPassword) {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                try {
-                    console.log('EmployeeService: Changing password for', username, 'to', newPassword);
-                    
-                    // Find the employee by username
-                    const employee = this.employees.find(emp => emp.username === username);
-                    if (!employee) {
-                        reject(new Error('Employee not found'));
-                        return;
-                    }
-
-                    console.log('Found employee:', employee.name, 'Current password:', this.credentials[username]);
-
-                    // Update the password in credentials
-                    this.credentials[username] = newPassword;
-                    
-                    // Update the defaultPassword field in employee data
-                    employee.defaultPassword = newPassword;
-
-                    console.log('Updated credentials:', this.credentials[username]);
-                    console.log('Updated employee defaultPassword:', employee.defaultPassword);
-
-                    this.notifyListeners();
-                    resolve({ success: true, message: "Employee password updated successfully" });
-                } catch (error) {
-                    console.error('Error changing employee password:', error);
-                    reject(new Error('Failed to update employee password: ' + error.message));
-                }
-            }, 300);
-        });
-    }
-
-    notifyListeners() {
-        this.listeners.forEach(listener => listener());
-    }
-
-    // Get current state for external access
-    getCurrentState() {
-        return {
-            employees: [...this.employees],
-            users: [...this.users],
-            credentials: {...this.credentials}
         };
     }
 }
