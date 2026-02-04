@@ -44,6 +44,33 @@ async function ensureJoinedDateColumn() {
     }
 }
 
+// Auto-fix: Reset database sequences if they're out of sync
+async function fixDatabaseSequences() {
+    try {
+        const tablesToFix = ['users', 'employees', 'tasks'];
+        
+        for (const table of tablesToFix) {
+            const maxIdResult = await pool.query(`SELECT MAX(id) as max_id FROM ${table}`);
+            const maxId = maxIdResult.rows[0].max_id;
+            
+            if (maxId && maxId > 0) {
+                const seqResult = await pool.query(
+                    `SELECT last_value FROM ${table}_id_seq`
+                );
+                const lastValue = seqResult.rows[0].last_value;
+                
+                if (lastValue < maxId) {
+                    const nextVal = maxId + 1;
+                    console.log(`⚙️  Fixing ${table}_id_seq: ${lastValue} → ${nextVal}`);
+                    await pool.query(`SELECT setval('${table}_id_seq', $1)`, [nextVal]);
+                }
+            }
+        }
+    } catch (error) {
+        console.warn('⚠️  Could not fix sequences:', error.message);
+    }
+}
+
 // Health check
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'Server is running' });
@@ -65,8 +92,9 @@ app.use((err, req, res, next) => {
 // Start server
 async function startServer() {
     try {
-        // Run migrations before starting server
+        // Run migrations and fixes before starting server
         await ensureJoinedDateColumn();
+        await fixDatabaseSequences();
         
         // Start listening on 0.0.0.0 for cloud deployments
         app.listen(PORT, '0.0.0.0', () => {
