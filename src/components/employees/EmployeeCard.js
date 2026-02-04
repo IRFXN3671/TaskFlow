@@ -80,6 +80,11 @@ const EmployeeCard = ({
                 key: "menu-section",
                 className: "flex items-center gap-2"
             }, [
+                // Role badge
+                employee.role === 'manager' && React.createElement("span", {
+                    key: "role-badge",
+                    className: "px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800"
+                }, "Manager"),
                 React.createElement("span", {
                     key: "status-badge",
                     className: `px-3 py-1 rounded-full text-xs font-medium ${

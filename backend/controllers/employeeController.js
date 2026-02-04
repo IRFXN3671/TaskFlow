@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs';
 export async function getAllEmployees(req, res) {
     try {
         const result = await pool.query(
-            'SELECT e.*, u.username, u.name FROM employees e JOIN users u ON e.user_id = u.id ORDER BY u.name'
+            'SELECT e.*, u.username, u.name, u.role FROM employees e JOIN users u ON e.user_id = u.id ORDER BY u.name'
         );
 
         res.json({ success: true, count: result.rows.length, data: result.rows });
@@ -18,7 +18,7 @@ export async function getAllEmployees(req, res) {
 export async function getActiveEmployees(req, res) {
     try {
         const result = await pool.query(
-            'SELECT e.*, u.username, u.name FROM employees e JOIN users u ON e.user_id = u.id WHERE e.is_active = true ORDER BY u.name'
+            'SELECT e.*, u.username, u.name, u.role FROM employees e JOIN users u ON e.user_id = u.id WHERE e.is_active = true ORDER BY u.name'
         );
 
         res.json({ success: true, count: result.rows.length, data: result.rows });
@@ -33,7 +33,7 @@ export async function getEmployeeById(req, res) {
         const { id } = req.params;
 
         const result = await pool.query(
-            'SELECT e.*, u.username, u.name FROM employees e JOIN users u ON e.user_id = u.id WHERE e.user_id = $1',
+            'SELECT e.*, u.username, u.name, u.role FROM employees e JOIN users u ON e.user_id = u.id WHERE e.user_id = $1',
             [id]
         );
 
@@ -50,7 +50,7 @@ export async function getEmployeeById(req, res) {
 // Create new employee
 export async function createEmployee(req, res) {
     try {
-        const { name, email, position, department, username, password, skills = [] } = req.body;
+        const { name, email, position, department, username, password, role = 'employee', skills = [] } = req.body;
 
         // Validate required fields
         if (!name || !email || !position || !department) {
@@ -105,7 +105,7 @@ export async function createEmployee(req, res) {
             // Create user
             const userResult = await client.query(
                 'INSERT INTO users (username, password, role, name) VALUES ($1, $2, $3, $4) RETURNING id',
-                [finalUsername, hashedPassword, 'employee', name]
+                [finalUsername, hashedPassword, role, name]
             );
 
             const userId = userResult.rows[0].id;
@@ -143,7 +143,7 @@ export async function createEmployee(req, res) {
 export async function updateEmployee(req, res) {
     try {
         const { id } = req.params;
-        const { name, email, position, department, skills } = req.body;
+        const { name, email, position, department, skills, role } = req.body;
 
         // Check if employee exists
         const empCheck = await pool.query(
@@ -172,12 +172,27 @@ export async function updateEmployee(req, res) {
         try {
             await client.query('BEGIN');
 
-            // Update user name if provided
+            // Update user name and/or role if provided
+            const userUpdateFields = [];
+            const userParams = [];
+            let userParamCount = 1;
+
             if (name) {
-                await client.query(
-                    'UPDATE users SET name = $1, updated_at = NOW() WHERE id = $2',
-                    [name, id]
-                );
+                userUpdateFields.push(`name = $${userParamCount}`);
+                userParams.push(name);
+                userParamCount++;
+            }
+            if (role) {
+                userUpdateFields.push(`role = $${userParamCount}`);
+                userParams.push(role);
+                userParamCount++;
+            }
+
+            if (userUpdateFields.length > 0) {
+                userUpdateFields.push('updated_at = NOW()');
+                userParams.push(id);
+                const userQuery = `UPDATE users SET ${userUpdateFields.join(', ')} WHERE id = $${userParamCount}`;
+                await client.query(userQuery, userParams);
             }
 
             // Update employee

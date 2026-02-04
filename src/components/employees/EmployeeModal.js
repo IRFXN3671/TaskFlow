@@ -14,6 +14,7 @@ const EmployeeModal = ({
         email: '',
         position: '',
         department: '',
+        role: 'employee',
         skills: []
     });
     const [errors, setErrors] = React.useState({});
@@ -30,6 +31,7 @@ const EmployeeModal = ({
                     email: employee.email || '',
                     position: employee.position || '',
                     department: employee.department || '',
+                    role: employee.role || 'employee',
                     skills: employee.skills || []
                 });
             } else {
@@ -38,6 +40,7 @@ const EmployeeModal = ({
                     email: '',
                     position: '',
                     department: '',
+                    role: 'employee',
                     skills: []
                 });
             }
@@ -296,6 +299,37 @@ const EmployeeModal = ({
                     key: "position-error",
                     className: "text-sm text-red-600"
                 }, errors.position)
+            ]),
+
+            // Role field
+            React.createElement("div", {
+                key: "role-field",
+                className: "space-y-2"
+            }, [
+                React.createElement("label", {
+                    key: "role-label",
+                    className: "block text-sm font-medium text-gray-700"
+                }, "Role *"),
+                React.createElement("select", {
+                    key: "role-select",
+                    value: formData.role,
+                    onChange: (e) => handleInputChange('role', e.target.value),
+                    className: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+                    disabled: isLoading
+                }, [
+                    React.createElement("option", {
+                        key: "employee-option",
+                        value: "employee"
+                    }, "Employee"),
+                    React.createElement("option", {
+                        key: "manager-option",
+                        value: "manager"
+                    }, "Manager")
+                ]),
+                React.createElement("p", {
+                    key: "role-help",
+                    className: "text-xs text-gray-500"
+                }, "Managers have full access to manage tasks and employees")
             ]),
 
             // Department field
