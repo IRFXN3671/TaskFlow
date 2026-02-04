@@ -77,9 +77,9 @@ const EmployeeList = () => {
 
         // Status filter
         if (statusFilter === 'active') {
-            filtered = filtered.filter(emp => emp.isActive);
+            filtered = filtered.filter(emp => emp.isActive === true);
         } else if (statusFilter === 'inactive') {
-            filtered = filtered.filter(emp => !emp.isActive);
+            filtered = filtered.filter(emp => emp.isActive === false);
         }
 
         // Department filter
@@ -87,10 +87,10 @@ const EmployeeList = () => {
             filtered = filtered.filter(emp => emp.department === departmentFilter);
         }
 
-        // Skills filter
+        // Skills filter (changed from .every to .some for AND logic)
         if (skillsFilter.length > 0) {
             filtered = filtered.filter(emp => 
-                emp.skills && skillsFilter.every(skill => 
+                emp.skills && skillsFilter.some(skill => 
                     emp.skills.includes(skill)
                 )
             );

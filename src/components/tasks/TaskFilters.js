@@ -1,9 +1,24 @@
 import React from 'react';
-import { mockUsers } from '../../data/mockData.js';
 import { Search, Filter, X, ChevronUp, ChevronDown } from '../icons/index.js';
+import { employeeService } from '../../services/EmployeeService.js';
 
 const TaskFilters = ({filters, sort, onFiltersChange, onSortChange, isManager}) => {
-    const employees = mockUsers.filter(user => user.role === "employee");
+    const [employees, setEmployees] = React.useState([]);
+
+    // Fetch employees when component mounts
+    React.useEffect(() => {
+        const fetchEmployees = async () => {
+            try {
+                const data = await employeeService.getActiveEmployees();
+                setEmployees(data);
+            } catch (error) {
+                console.error('Failed to fetch employees:', error);
+            }
+        };
+        if (isManager) {
+            fetchEmployees();
+        }
+    }, [isManager]);
     
     const handleFilterChange = (key, value) => {
         onFiltersChange({
