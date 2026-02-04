@@ -173,7 +173,7 @@ const EmployeeModal = ({
             }
         }
     }, React.createElement("div", {
-        className: "bg-white rounded-xl shadow-xl w-full max-w-md mx-4",
+        className: "bg-white rounded-xl shadow-xl w-full max-w-md mx-4 max-h-[90vh] flex flex-col",
         onClick: (e) => e.stopPropagation()
     }, [
         // Header
@@ -218,7 +218,7 @@ const EmployeeModal = ({
         React.createElement("form", {
             key: "form",
             onSubmit: handleSubmit,
-            className: "p-6 space-y-4"
+            className: "p-6 space-y-4 overflow-y-auto flex-1"
         }, [
             // Name field
             React.createElement("div", {
@@ -458,7 +458,7 @@ const EmployeeModal = ({
         // Footer
         React.createElement("div", {
             key: "footer",
-            className: "flex items-center justify-end gap-3 p-6 border-t border-gray-200"
+            className: "flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-white"
         }, [
             React.createElement("button", {
                 key: "cancel-btn",
