@@ -17,8 +17,9 @@ function parsePostgresArray(pgArray) {
 // Get all employees
 export async function getAllEmployees(req, res) {
     try {
+        // Exclude superuser (Irfan, user_id = 1) from employee management
         const result = await pool.query(
-            'SELECT e.*, u.username, u.name, u.role FROM employees e JOIN users u ON e.user_id = u.id ORDER BY u.name'
+            'SELECT e.*, u.username, u.name, u.role FROM employees e JOIN users u ON e.user_id = u.id WHERE u.id != 1 ORDER BY u.name'
         );
 
         // Parse PostgreSQL array format for skills
@@ -56,6 +57,11 @@ export async function getActiveEmployees(req, res) {
 export async function getEmployeeById(req, res) {
     try {
         const { id } = req.params;
+
+        // Prevent access to superuser (Irfan, user_id = 1) for other managers
+        if (parseInt(id) === 1) {
+            return res.status(403).json({ success: false, message: 'Cannot access superuser account' });
+        }
 
         const result = await pool.query(
             'SELECT e.*, u.username, u.name, u.role FROM employees e JOIN users u ON e.user_id = u.id WHERE e.user_id = $1',
@@ -175,6 +181,11 @@ export async function updateEmployee(req, res) {
         const { id } = req.params;
         const { name, email, position, department, skills, role } = req.body;
 
+        // Prevent modification of superuser (Irfan, user_id = 1)
+        if (parseInt(id) === 1) {
+            return res.status(403).json({ success: false, message: 'Cannot modify superuser account' });
+        }
+
         // Check if employee exists
         const empCheck = await pool.query(
             'SELECT * FROM employees WHERE user_id = $1',
@@ -292,6 +303,11 @@ export async function toggleEmployeeStatus(req, res) {
     try {
         const { id } = req.params;
 
+        // Prevent deactivation of superuser (Irfan, user_id = 1)
+        if (parseInt(id) === 1) {
+            return res.status(403).json({ success: false, message: 'Cannot deactivate superuser account' });
+        }
+
         const result = await pool.query(
             'UPDATE employees SET is_active = NOT is_active, updated_at = NOW() WHERE user_id = $1 RETURNING *',
             [id]
@@ -311,6 +327,11 @@ export async function toggleEmployeeStatus(req, res) {
 export async function deleteEmployee(req, res) {
     try {
         const { id } = req.params;
+
+        // Prevent deletion of superuser (Irfan, user_id = 1)
+        if (parseInt(id) === 1) {
+            return res.status(403).json({ success: false, message: 'Cannot delete superuser account' });
+        }
 
         const client = await pool.connect();
 
