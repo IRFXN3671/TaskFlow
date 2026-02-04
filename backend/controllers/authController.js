@@ -24,15 +24,13 @@ export async function login(req, res) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        // Check if employee is active
-        if (user.role === 'employee') {
-            const empResult = await pool.query(
-                'SELECT is_active FROM employees WHERE user_id = $1',
-                [user.id]
-            );
-            if (empResult.rows.length > 0 && !empResult.rows[0].is_active) {
-                return res.status(403).json({ message: 'Account is inactive' });
-            }
+        // Check if employee/manager is active
+        const empResult = await pool.query(
+            'SELECT is_active FROM employees WHERE user_id = $1',
+            [user.id]
+        );
+        if (empResult.rows.length > 0 && !empResult.rows[0].is_active) {
+            return res.status(403).json({ message: 'Account is inactive' });
         }
 
         // Update last login
