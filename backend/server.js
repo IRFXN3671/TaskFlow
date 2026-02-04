@@ -40,10 +40,10 @@ app.use((err, req, res, next) => {
 // Start server
 async function startServer() {
     try {
-        // Start listening
-        app.listen(PORT, () => {
-            console.log(`\n🚀 Server running on http://localhost:${PORT}`);
-            console.log(`📚 API Documentation: http://localhost:${PORT}/api/docs\n`);
+        // Start listening on 0.0.0.0 for cloud deployments
+        app.listen(PORT, '0.0.0.0', () => {
+            console.log(`\n🚀 Server running on http://0.0.0.0:${PORT}`);
+            console.log(`📚 API Documentation: http://0.0.0.0:${PORT}/api/docs\n`);
         });
     } catch (error) {
         console.error('Failed to start server:', error);
