@@ -11,8 +11,9 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
+const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
 app.use(cors({
-    origin: 'http://localhost:5173', // Vite frontend default port
+    origin: corsOrigin,
     credentials: true
 }));
 app.use(express.json());
@@ -49,7 +50,5 @@ async function startServer() {
         process.exit(1);
     }
 }
-
-startServer();
 
 startServer();

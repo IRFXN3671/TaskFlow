@@ -190,36 +190,7 @@ const ManagerDashboard = ({
                 onSortChange: onSortChange,
                 isManager: true
             }),
-            React.createElement("div", {
-                key: "sort-header",
-                className: "flex items-center justify-between bg-gray-50 px-4 py-2 rounded-lg"
-            }, [
-                React.createElement("span", {
-                    key: "sort-label",
-                    className: "text-sm text-gray-600"
-                }, "Sort by:"),
-                React.createElement("div", {
-                    key: "sort-options",
-                    className: "flex items-center gap-4"
-                }, [
-                    React.createElement("span", {
-                        key: "due-date",
-                        className: "text-sm font-medium text-blue-600"
-                    }, "Due Date"),
-                    React.createElement("span", {
-                        key: "priority",
-                        className: "text-sm text-gray-600"
-                    }, "Priority"),
-                    React.createElement("span", {
-                        key: "status",
-                        className: "text-sm text-gray-600"
-                    }, "Status"),
-                    React.createElement("span", {
-                        key: "title",
-                        className: "text-sm text-gray-600"
-                    }, "Title")
-                ])
-            ]),
+            
             React.createElement("div", {
                 key: "tasks-grid",
                 className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
