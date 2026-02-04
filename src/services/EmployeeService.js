@@ -39,11 +39,7 @@ class EmployeeService {
                 headers: this.getAuthHeaders()
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Failed to fetch employees');
-            }
+            const data = await this.handleResponse(response);
 
             return (data.data || []).map(emp => ({
                 ...emp,
@@ -66,11 +62,7 @@ class EmployeeService {
                 headers: this.getAuthHeaders()
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Failed to fetch active employees');
-            }
+            const data = await this.handleResponse(response);
 
             return (data.data || []).map(emp => ({
                 ...emp,
@@ -93,11 +85,7 @@ class EmployeeService {
                 headers: this.getAuthHeaders()
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Employee not found');
-            }
+            const data = await this.handleResponse(response);
 
             return {
                 ...data.data,
@@ -125,15 +113,12 @@ class EmployeeService {
                     department: employeeData.department,
                     username: employeeData.username,
                     password: employeeData.password || 'password123',
+                    role: employeeData.role || 'employee',
                     skills: employeeData.skills || []
                 })
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Failed to create employee');
-            }
+            const data = await this.handleResponse(response);
 
             this.notifyListeners();
             return data.data;
@@ -152,11 +137,7 @@ class EmployeeService {
                 body: JSON.stringify(updates)
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Failed to update employee');
-            }
+            const data = await this.handleResponse(response);
 
             this.notifyListeners();
             return data.data;
@@ -174,11 +155,7 @@ class EmployeeService {
                 headers: this.getAuthHeaders()
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Failed to toggle employee status');
-            }
+            const data = await this.handleResponse(response);
 
             this.notifyListeners();
             return data.data;
@@ -196,11 +173,7 @@ class EmployeeService {
                 headers: this.getAuthHeaders()
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Failed to delete employee');
-            }
+            const data = await this.handleResponse(response);
 
             this.notifyListeners();
         } catch (error) {
@@ -217,11 +190,7 @@ class EmployeeService {
                 headers: this.getAuthHeaders()
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Failed to reset password');
-            }
+            const data = await this.handleResponse(response);
 
             this.notifyListeners();
             return data;
@@ -239,11 +208,7 @@ class EmployeeService {
                 headers: this.getAuthHeaders()
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Failed to fetch employee statistics');
-            }
+            const data = await this.handleResponse(response);
 
             return data.data || {};
         } catch (error) {

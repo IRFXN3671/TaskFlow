@@ -221,19 +221,30 @@ export async function updateEmployee(req, res) {
                 paramCount++;
             }
 
-            if (updateFields.length > 0) {
-                updateFields.push('updated_at = NOW()');
-                params.push(id);
+            if (updateFields.length > 0 || userUpdateFields.length > 0) {
+                if (updateFields.length > 0) {
+                    updateFields.push('updated_at = NOW()');
+                    params.push(id);
 
-                const query = `UPDATE employees SET ${updateFields.join(', ')} WHERE user_id = $${paramCount} RETURNING *`;
+                    const query = `UPDATE employees SET ${updateFields.join(', ')} WHERE user_id = $${paramCount} RETURNING *`;
+                    await client.query(query, params);
+                }
                 
-                const result = await client.query(query, params);
+                // Return employee with user role
+                const result = await client.query(
+                    'SELECT e.*, u.username, u.name, u.role FROM employees e JOIN users u ON e.user_id = u.id WHERE e.user_id = $1',
+                    [id]
+                );
+                
                 await client.query('COMMIT');
-
                 res.json({ success: true, data: result.rows[0] });
             } else {
                 await client.query('COMMIT');
-                res.json({ success: true, message: 'No changes made', data: empCheck.rows[0] });
+                const result = await client.query(
+                    'SELECT e.*, u.username, u.name, u.role FROM employees e JOIN users u ON e.user_id = u.id WHERE e.user_id = $1',
+                    [id]
+                );
+                res.json({ success: true, message: 'No changes made', data: result.rows[0] });
             }
         } catch (error) {
             await client.query('ROLLBACK');
