@@ -24,20 +24,20 @@ export async function login(req, res) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        // Check if employee/manager is active
+        // Check if employee/manager is active - REQUIRED for all users
         const empResult = await pool.query(
             'SELECT is_active FROM employees WHERE user_id = $1',
             [user.id]
         );
         
-        // If employee record exists, check if active
-        if (empResult.rows.length > 0) {
-            if (!empResult.rows[0].is_active) {
-                return res.status(403).json({ message: 'Account is inactive' });
-            }
-        } else {
-            // If no employee record found, log it for debugging
-            console.warn(`Warning: No employee record found for user_id ${user.id} (${user.username})`);
+        // User MUST have an employee record
+        if (empResult.rows.length === 0) {
+            return res.status(403).json({ message: 'Account is inactive' });
+        }
+        
+        // User must be active
+        if (!empResult.rows[0].is_active) {
+            return res.status(403).json({ message: 'Account is inactive' });
         }
 
         // Update last login
