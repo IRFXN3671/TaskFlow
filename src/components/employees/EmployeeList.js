@@ -114,7 +114,8 @@ const EmployeeList = () => {
             setIsSubmitting(true);
             
             if (editingEmployee) {
-                await employeeService.updateEmployee(editingEmployee.id, employeeData);
+                // Use userId for the update - the backend uses user_id
+                await employeeService.updateEmployee(editingEmployee.userId, employeeData);
             } else {
                 const newEmployee = await employeeService.createEmployee(employeeData);
                 alert(`Employee added successfully!\n\nLogin Credentials:\nUsername: ${newEmployee.username}\nPassword: ${newEmployee.defaultPassword}\n\nPlease save these credentials securely.`);
