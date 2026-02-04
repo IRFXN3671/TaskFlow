@@ -26,11 +26,31 @@ const App = () => {
     const [isChangingPassword, setIsChangingPassword] = React.useState(false);
 
     React.useEffect(() => {
-        const currentUser = authService.getCurrentUser();
-        if (currentUser) {
+        // Check if user is authenticated (includes token expiry and session timeout checks)
+        if (authService.isAuthenticated()) {
+            const currentUser = authService.getCurrentUser();
             setUser(currentUser);
+            // Start session monitoring for auto-logout
+            authService.startSessionMonitoring();
+        } else {
+            // Clear any stale data if session expired
+            authService.logout();
         }
         setLoading(false);
+
+        // Subscribe to auth changes (including automatic logout)
+        const unsubscribe = authService.subscribe(() => {
+            const currentUser = authService.getCurrentUser();
+            if (!currentUser) {
+                setUser(null);
+                setTasks([]);
+                setStats({});
+            }
+        });
+
+        return () => {
+            unsubscribe();
+        };
     }, []);
 
     React.useEffect(() => {

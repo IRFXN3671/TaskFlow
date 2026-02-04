@@ -15,6 +15,22 @@ class TaskService {
         };
     }
 
+    async handleResponse(response) {
+        // If unauthorized, token might be expired - logout
+        if (response.status === 401) {
+            authService.logout();
+            throw new Error('Session expired. Please login again.');
+        }
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.message || 'Request failed');
+        }
+        
+        return data;
+    }
+
     async getAllTasks(filters = {}, sort = { field: "dueDate", direction: "asc" }) {
         try {
             const params = new URLSearchParams();
@@ -41,11 +57,7 @@ class TaskService {
                 headers: this.getAuthHeaders()
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Failed to fetch tasks');
-            }
+            const data = await this.handleResponse(response);
 
             // Transform backend response to match frontend format
             return (data.data || []).map(task => ({
@@ -77,11 +89,7 @@ class TaskService {
                 })
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Failed to create task');
-            }
+            const data = await this.handleResponse(response);
 
             this.notifyListeners();
             return data.data;
@@ -99,11 +107,7 @@ class TaskService {
                 body: JSON.stringify(taskData)
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Failed to update task');
-            }
+            const data = await this.handleResponse(response);
 
             this.notifyListeners();
             return data.data;
@@ -120,11 +124,7 @@ class TaskService {
                 headers: this.getAuthHeaders()
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Failed to delete task');
-            }
+            const data = await this.handleResponse(response);
 
             this.notifyListeners();
         } catch (error) {
@@ -140,11 +140,7 @@ class TaskService {
                 headers: this.getAuthHeaders()
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Failed to fetch statistics');
-            }
+            const data = await this.handleResponse(response);
 
             return data.data || {};
         } catch (error) {

@@ -15,6 +15,22 @@ class EmployeeService {
         };
     }
 
+    async handleResponse(response) {
+        // If unauthorized, token might be expired - logout
+        if (response.status === 401) {
+            authService.logout();
+            throw new Error('Session expired. Please login again.');
+        }
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.message || 'Request failed');
+        }
+        
+        return data;
+    }
+
     // Get all employees
     async getAllEmployees() {
         try {
