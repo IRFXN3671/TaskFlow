@@ -27,15 +27,15 @@ const Login = ({onLogin}) => {
         role: "Manager",
         name: "Irfan"
     }, {
-        username: "employee1",
+        username: "nidal",
         role: "Employee",
         name: "Nidal"
     }, {
-        username: "employee2",
+        username: "wasim",
         role: "Employee",
         name: "Wasim"
     }, {
-        username: "employee3",
+        username: "sanin",
         role: "Employee",
         name: "Sanin"
     }];
@@ -139,57 +139,57 @@ const Login = ({onLogin}) => {
                 }) : "Sign In")
             ])
         ]),
-        React.createElement("div", {
-            key: "demo-accounts",
-            className: "mt-6 bg-white rounded-2xl shadow-lg p-6 border border-gray-100",
-        }, [
-            React.createElement("h3", {
-                key: "demo-title",
-                className: "text-lg font-semibold text-gray-900 mb-4",
-            }, "Demo Accounts"),
-            React.createElement("p", {
-                key: "demo-subtitle",
-                className: "text-sm text-gray-600 mb-4",
-            }, "Click on any account to auto-fill credentials:"),
-            React.createElement("div", {
-                key: "demo-list",
-                className: "space-y-2",
-            }, demoAccounts.map(account => React.createElement("button", {
-                key: account.username,
-                onClick: () => selectDemoAccount(account.username),
-                className: "w-full text-left p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors group",
-            }, React.createElement("div", {
-                className: "flex justify-between items-center",
-            }, [
-                React.createElement("div", {
-                    key: "account-info",
-                }, [
-                    React.createElement("div", {
-                        key: "account-name",
-                        className: "font-medium text-gray-900",
-                    }, account.name),
-                    React.createElement("div", {
-                        key: "account-username",
-                        className: "text-sm text-gray-600",
-                    }, `@${account.username}`)
-                ]),
-                React.createElement("span", {
-                    key: "account-role",
-                    className: `px-2 py-1 text-xs rounded-full ${account.role === "Manager" ? "bg-orange-100 text-orange-800" : "bg-blue-100 text-blue-800"}`,
-                }, account.role)
-            ])))),
-            React.createElement("p", {
-                key: "password-hint",
-                className: "text-xs text-gray-500 mt-4",
-            }, [
-                "Default password for all accounts: ",
-                React.createElement("code", {
-                    key: "password-code",
-                    className: "bg-gray-100 px-2 py-1 rounded",
-                }, "password123")
-            ])
-        ])
-    ]));
-};
+//         React.createElement("div", {
+//             key: "demo-accounts",
+//             className: "mt-6 bg-white rounded-2xl shadow-lg p-6 border border-gray-100",
+//         }, [
+//             React.createElement("h3", {
+//                 key: "demo-title",
+//                 className: "text-lg font-semibold text-gray-900 mb-4",
+//             }, "Demo Accounts"),
+//             React.createElement("p", {
+//                 key: "demo-subtitle",
+//                 className: "text-sm text-gray-600 mb-4",
+//             }, "Click on any account to auto-fill credentials:"),
+//             React.createElement("div", {
+//                 key: "demo-list",
+//                 className: "space-y-2",
+//             }, demoAccounts.map(account => React.createElement("button", {
+//                 key: account.username,
+//                 onClick: () => selectDemoAccount(account.username),
+//                 className: "w-full text-left p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors group",
+//             }, React.createElement("div", {
+//                 className: "flex justify-between items-center",
+//             }, [
+//                 React.createElement("div", {
+//                     key: "account-info",
+//                 }, [
+//                     React.createElement("div", {
+//                         key: "account-name",
+//                         className: "font-medium text-gray-900",
+//                     }, account.name),
+//                     React.createElement("div", {
+//                         key: "account-username",
+//                         className: "text-sm text-gray-600",
+//                     }, `@${account.username}`)
+//                 ]),
+//                 React.createElement("span", {
+//                     key: "account-role",
+//                     className: `px-2 py-1 text-xs rounded-full ${account.role === "Manager" ? "bg-orange-100 text-orange-800" : "bg-blue-100 text-blue-800"}`,
+//                 }, account.role)
+//             ])))),
+//             React.createElement("p", {
+//                 key: "password-hint",
+//                 className: "text-xs text-gray-500 mt-4",
+//             }, [
+//                 "Default password for all accounts: ",
+//                 React.createElement("code", {
+//                     key: "password-code",
+//                     className: "bg-gray-100 px-2 py-1 rounded",
+//                 }, "password123")
+//             ])
+//         ])
+//     ]));
+// };
 
 export default Login;
