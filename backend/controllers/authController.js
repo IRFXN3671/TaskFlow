@@ -29,8 +29,15 @@ export async function login(req, res) {
             'SELECT is_active FROM employees WHERE user_id = $1',
             [user.id]
         );
-        if (empResult.rows.length > 0 && !empResult.rows[0].is_active) {
-            return res.status(403).json({ message: 'Account is inactive' });
+        
+        // If employee record exists, check if active
+        if (empResult.rows.length > 0) {
+            if (!empResult.rows[0].is_active) {
+                return res.status(403).json({ message: 'Account is inactive' });
+            }
+        } else {
+            // If no employee record found, log it for debugging
+            console.warn(`Warning: No employee record found for user_id ${user.id} (${user.username})`);
         }
 
         // Update last login
