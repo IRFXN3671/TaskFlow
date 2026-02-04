@@ -1,6 +1,19 @@
 import pool from '../config/database.js';
 import bcrypt from 'bcryptjs';
 
+// Helper function to parse PostgreSQL array format
+function parsePostgresArray(pgArray) {
+    if (!pgArray) return [];
+    if (Array.isArray(pgArray)) return pgArray;
+    if (typeof pgArray === 'string') {
+        // Remove curly braces and split by comma
+        const cleaned = pgArray.replace(/^{|}$/g, '');
+        if (!cleaned) return [];
+        return cleaned.split(',').map(item => item.trim().replace(/^"|"$/g, ''));
+    }
+    return [];
+}
+
 // Get all employees
 export async function getAllEmployees(req, res) {
     try {
@@ -8,7 +21,13 @@ export async function getAllEmployees(req, res) {
             'SELECT e.*, u.username, u.name, u.role FROM employees e JOIN users u ON e.user_id = u.id ORDER BY u.name'
         );
 
-        res.json({ success: true, count: result.rows.length, data: result.rows });
+        // Parse PostgreSQL array format for skills
+        const employees = result.rows.map(emp => ({
+            ...emp,
+            skills: emp.skills ? parsePostgresArray(emp.skills) : []
+        }));
+
+        res.json({ success: true, count: employees.length, data: employees });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -21,7 +40,13 @@ export async function getActiveEmployees(req, res) {
             'SELECT e.*, u.username, u.name, u.role FROM employees e JOIN users u ON e.user_id = u.id WHERE e.is_active = true ORDER BY u.name'
         );
 
-        res.json({ success: true, count: result.rows.length, data: result.rows });
+        // Parse PostgreSQL array format for skills
+        const employees = result.rows.map(emp => ({
+            ...emp,
+            skills: emp.skills ? parsePostgresArray(emp.skills) : []
+        }));
+
+        res.json({ success: true, count: employees.length, data: employees });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -41,7 +66,12 @@ export async function getEmployeeById(req, res) {
             return res.status(404).json({ success: false, message: 'Employee not found' });
         }
 
-        res.json({ success: true, data: result.rows[0] });
+        const employee = {
+            ...result.rows[0],
+            skills: result.rows[0].skills ? parsePostgresArray(result.rows[0].skills) : []
+        };
+
+        res.json({ success: true, data: employee });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -359,7 +389,7 @@ export async function getEmployeeStats(req, res) {
                 SUM(CASE WHEN t.status = 'completed' THEN 1 ELSE 0 END) as completed_tasks
             FROM employees e
             JOIN users u ON e.user_id = u.id
-            LEFT JOIN tasks t ON e.user_id = t.assignee_id
+            LEFT JOIN tasks t ON e.user_id = t.assigned_to
             GROUP BY e.user_id, u.name
             ORDER BY task_count DESC
         `);
