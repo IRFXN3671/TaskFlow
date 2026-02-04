@@ -17,12 +17,16 @@ export async function login(req, res) {
         }
 
         const user = userResult.rows[0];
+        console.log(`[LOGIN] User found: ${username} (ID: ${user.id}, Role: ${user.role})`);
 
         // Verify password
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
+            console.log(`[LOGIN] Invalid password for user: ${username}`);
             return res.status(401).json({ message: 'Invalid credentials' });
         }
+
+        console.log(`[LOGIN] Password valid for user: ${username}`);
 
         // Check if employee/manager is active - REQUIRED for all users
         const empResult = await pool.query(
@@ -30,15 +34,24 @@ export async function login(req, res) {
             [user.id]
         );
         
+        console.log(`[LOGIN] Employee record check for user ${username}:`, empResult.rows.length > 0 ? 'FOUND' : 'NOT FOUND');
+        if (empResult.rows.length > 0) {
+            console.log(`[LOGIN] is_active status: ${empResult.rows[0].is_active}`);
+        }
+        
         // User MUST have an employee record
         if (empResult.rows.length === 0) {
+            console.log(`[LOGIN] BLOCKED: No employee record for ${username}`);
             return res.status(403).json({ message: 'Account is inactive' });
         }
         
         // User must be active
         if (!empResult.rows[0].is_active) {
+            console.log(`[LOGIN] BLOCKED: User ${username} is inactive`);
             return res.status(403).json({ message: 'Account is inactive' });
         }
+
+        console.log(`[LOGIN] Allowing login for ${username}`);
 
         // Update last login
         await pool.query(
@@ -58,6 +71,7 @@ export async function login(req, res) {
             token
         });
     } catch (error) {
+        console.error('[LOGIN] Error:', error);
         res.status(500).json({ message: error.message });
     }
 }
