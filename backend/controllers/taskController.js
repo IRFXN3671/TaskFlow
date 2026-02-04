@@ -9,7 +9,7 @@ export async function getAllTasks(req, res) {
         let query = `
             SELECT t.*, u.name AS assignee_name, u.username AS assignee_username
             FROM tasks t
-            LEFT JOIN employees e ON t.assignee_id = e.user_id
+            LEFT JOIN employees e ON t.assigned_to = e.user_id
             LEFT JOIN users u ON e.user_id = u.id
             WHERE 1=1
         `;
@@ -18,7 +18,7 @@ export async function getAllTasks(req, res) {
 
         // For employees: show only their tasks
         if (req.user.role === 'employee') {
-            query += ` AND t.assignee_id = $${paramCount}`;
+            query += ` AND t.assigned_to = $${paramCount}`;
             params.push(userId);
             paramCount++;
         }
@@ -39,7 +39,7 @@ export async function getAllTasks(req, res) {
 
         // Filter by assignee
         if (assigneeId) {
-            query += ` AND t.assignee_id = $${paramCount}`;
+            query += ` AND t.assigned_to = $${paramCount}`;
             params.push(assigneeId);
             paramCount++;
         }
@@ -78,7 +78,7 @@ export async function getTaskById(req, res) {
             `
                 SELECT t.*, u.name AS assignee_name, u.username AS assignee_username
                 FROM tasks t
-                LEFT JOIN employees e ON t.assignee_id = e.user_id
+                LEFT JOIN employees e ON t.assigned_to = e.user_id
                 LEFT JOIN users u ON e.user_id = u.id
                 WHERE t.id = $1
             `,
@@ -91,7 +91,7 @@ export async function getTaskById(req, res) {
 
         // Check permission: employee can only see their own tasks
         const task = result.rows[0];
-        if (req.user.role === 'employee' && task.assignee_id !== req.user.id) {
+        if (req.user.role === 'employee' && task.assigned_to !== req.user.id) {
             return res.status(403).json({ success: false, message: 'Access denied' });
         }
 
@@ -138,7 +138,7 @@ export async function createTask(req, res) {
         }
 
         const result = await pool.query(
-            `INSERT INTO tasks (title, description, status, priority, due_date, assignee_id, created_by)
+            `INSERT INTO tasks (title, description, status, priority, due_date, assigned_to, created_by)
              VALUES ($1, $2, $3, $4, $5, $6, $7)
              RETURNING *`,
             [title, description, status, priority, dueDate, assigneeId, createdBy]
@@ -167,7 +167,7 @@ export async function updateTask(req, res) {
         const task = taskResult.rows[0];
 
         // Employees can only update their own tasks
-        if (userRole === 'employee' && task.assignee_id !== userId) {
+        if (userRole === 'employee' && task.assigned_to !== userId) {
             return res.status(403).json({ success: false, message: 'You can only update your own tasks' });
         }
 
@@ -185,10 +185,10 @@ export async function updateTask(req, res) {
         const params = [];
         let paramCount = 1;
 
-        const allowedFields = ['title', 'description', 'status', 'priority', 'due_date', 'assignee_id'];
+        const allowedFields = ['title', 'description', 'status', 'priority', 'due_date', 'assigned_to'];
         
         for (const field of allowedFields) {
-            const key = field === 'due_date' ? 'dueDate' : field === 'assignee_id' ? 'assigneeId' : field;
+            const key = field === 'due_date' ? 'dueDate' : field === 'assigned_to' ? 'assigneeId' : field;
             if (updates[key] !== undefined) {
                 updateFields.push(`${field} = $${paramCount}`);
                 params.push(updates[key]);
@@ -239,7 +239,7 @@ export async function getDashboardStats(req, res) {
         let query = `
             SELECT t.*, u.name AS assignee_name
             FROM tasks t
-            LEFT JOIN employees e ON t.assignee_id = e.user_id
+            LEFT JOIN employees e ON t.assigned_to = e.user_id
             LEFT JOIN users u ON e.user_id = u.id
             WHERE 1=1
         `;
@@ -247,7 +247,7 @@ export async function getDashboardStats(req, res) {
 
         // For employees: only their stats
         if (req.user.role === 'employee') {
-            query += ' AND t.assignee_id = $1';
+            query += ' AND t.assigned_to = $1';
             params.push(req.user.id);
         }
 
@@ -286,3 +286,4 @@ export async function getDashboardStats(req, res) {
         res.status(500).json({ success: false, message: error.message });
     }
 }
+
