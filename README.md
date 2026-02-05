@@ -34,7 +34,7 @@ TaskFlow is a comprehensive task and employee management system designed for tea
 - **Manage Employees**: Add employees, assign tasks, track performance
 - **Real-time Analytics**: View dashboard with task statistics and employee metrics
 - **Role-based Access**: Manager and Employee roles with different permissions
-- **Cloud-based**: Fully deployed on Railway (backend) and Netlify (frontend)
+- **Cloud-based**: Fully deployed on Render (backend) and Netlify (frontend) with Neon PostgreSQL
 
 ---
 
@@ -59,7 +59,7 @@ TaskFlow is a comprehensive task and employee management system designed for tea
 ### General Features
 - ✅ Secure JWT-based authentication
 - ✅ CORS-enabled API for frontend-backend communication
-- ✅ Cloud PostgreSQL database on Railway
+- ✅ Cloud PostgreSQL database on Neon
 - ✅ Responsive design (mobile, tablet, desktop)
 - ✅ Real-time data synchronization
 - ✅ Error handling and validation
@@ -85,7 +85,8 @@ TaskFlow is a comprehensive task and employee management system designed for tea
 
 ### Deployment
 - **Netlify** - Frontend hosting
-- **Railway** - Backend & PostgreSQL hosting
+- **Render** - Backend hosting
+- **Neon** - PostgreSQL database hosting
 - **Git/GitHub** - Version control
 
 ---
@@ -98,13 +99,13 @@ TaskFlow is a comprehensive task and employee management system designed for tea
 
 **Manager Account:**
 ```
-Username: manager1
+Username: lenok
 Password: password123
 ```
 
 **Employee Accounts:**
 ```
-Username: employee1 / employee2 / employee3
+Username: nidal / wasim / sanin
 Password: password123 (all)
 ```
 
@@ -176,16 +177,20 @@ npm run preview
 ## 🌍 Deployment
 
 ### Prerequisites
-- Railway account ([Sign up](https://railway.app))
+- Render account ([Sign up](https://render.com))
+- Neon account ([Sign up](https://neon.tech))
 - Netlify account ([Sign up](https://netlify.com))
 - GitHub account with repository
 
-### Deploy Backend to Railway
+### Deploy Backend to Render
 
-1. Go to [railway.app](https://railway.app)
-2. Create a new project and connect your GitHub repository
-3. Add environment variables (see [Environment Variables](#environment-variables))
-4. Railway auto-deploys on every push to main branch
+1. Go to [render.com](https://render.com)
+2. Create a new Web Service and connect your GitHub repository
+3. Configure build and start commands:
+   - Build command: `cd backend && npm install`
+   - Start command: `cd backend && npm start`
+4. Add environment variables (see [Environment Variables](#environment-variables))
+5. Render auto-deploys on every push to main branch
 
 ### Deploy Frontend to Netlify
 
@@ -194,19 +199,20 @@ npm run preview
 3. Build settings:
    - Build command: `npm ci && npm run build`
    - Publish directory: `dist`
-4. Add environment variable: `VITE_API_URL = <your-railway-backend-url>/api`
+4. Add environment variable: `VITE_API_URL = <your-render-backend-url>/api`
 5. Deploy
 
-### Setup Cloud Database
+### Setup Cloud Database (Neon)
 
-1. In Railway, add PostgreSQL service
-2. Run migrations on cloud database:
+1. Go to [neon.tech](https://neon.tech) and create a new project
+2. Get your PostgreSQL connection string
+3. Run migrations on cloud database:
    ```bash
-   $env:DB_HOST = "your-railway-host"
+   $env:DB_HOST = "your-neon-host"
    $env:DB_PORT = "5432"
-   $env:DB_NAME = "railway"
+   $env:DB_NAME = "neondb"
    $env:DB_USER = "postgres"
-   $env:DB_PASSWORD = "your-password"
+   $env:DB_PASSWORD = "your-neon-password"
    npm run migrate
    npm run seed
    ```
@@ -267,12 +273,12 @@ TaskFlow/
 
 ### Backend (.env)
 ```env
-# Database Configuration
-DB_HOST=your-database-host
+# Database Configuration (Neon PostgreSQL)
+DB_HOST=your-neon-host.neon.tech
 DB_PORT=5432
-DB_NAME=taskflow_db
+DB_NAME=neondb
 DB_USER=postgres
-DB_PASSWORD=your_password
+DB_PASSWORD=your-neon-password
 
 # Server Configuration
 PORT=5000
@@ -287,7 +293,7 @@ CORS_ORIGIN=https://taskfloooww.netlify.app
 
 ### Frontend (Netlify Environment Variables)
 ```
-VITE_API_URL=https://your-backend-url.railway.app/api
+VITE_API_URL=https://your-backend-url.onrender.com/api
 ```
 
 ---
@@ -366,12 +372,12 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 🆘 Troubleshooting
 
 ### Backend not connecting to database
-- Check database credentials in `.env`
-- Verify database host is accessible
+- Check Neon database credentials in `.env`
+- Verify Neon database host is accessible
 - Ensure PostgreSQL service is running
 
 ### CORS errors
-- Update `CORS_ORIGIN` in Railway backend variables
+- Update `CORS_ORIGIN` in Render backend environment variables
 - Ensure frontend URL matches exactly (with/without trailing slash)
 
 ### Build errors on Netlify
@@ -380,7 +386,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Check Node.js version on Netlify matches local version
 
 ### Employees not showing in filters
-- Ensure migrations and seed have been run on cloud database
+- Ensure migrations and seed have been run on Neon database
 - Check backend API is returning employees correctly
 - Verify token is valid
 
